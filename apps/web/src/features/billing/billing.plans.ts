@@ -3,7 +3,6 @@ import type { BillingPlan } from "./billing.api";
 export type BillingPlanDefinition = {
   id: BillingPlan;
   name: string;
-  price: string;
   period: string;
   description: string;
   highlight: string;
@@ -20,7 +19,6 @@ export const billingPlans: BillingPlanDefinition[] = [
   {
     id: "initial",
     name: "Inicial",
-    price: "$15",
     period: "/mes",
     description: "Para negocios chicos que quieren recibir reservas online sin complicarse.",
     highlight: "Para empezar",
@@ -41,7 +39,6 @@ export const billingPlans: BillingPlanDefinition[] = [
   {
     id: "professional",
     name: "Profesional",
-    price: "$24.000",
     period: "/mes",
     description: "Para equipos que trabajan todos los días y necesitan más control.",
     highlight: "Más elegido",
@@ -62,7 +59,6 @@ export const billingPlans: BillingPlanDefinition[] = [
   {
     id: "operation",
     name: "Operación",
-    price: "$39.000",
     period: "/mes",
     description: "Para negocios con varias sedes, más volumen y operación exigente.",
     highlight: "Alto volumen",

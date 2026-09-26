@@ -122,6 +122,38 @@ export function superadminLogin(email: string, password: string) {
   });
 }
 
+export type SuperadminPrice = {
+  plan: "initial" | "professional" | "operation";
+  amountCents: number;
+  revision: number;
+  change: null | {
+    id: string;
+    createdAt: string;
+    changedBy: string;
+    pending: number;
+    updated: number;
+    skipped: number;
+    failed: number;
+    failures: { organizationId: string; preapprovalId: string; errorCode: string | null; attempts: number; nextAttemptAt: string }[];
+  };
+};
+
+export function getSuperadminPrices() {
+  return apiRequest<ApiResponse<SuperadminPrice[]>>("/api/v1/superadmin/prices", {}, false);
+}
+
+export function updateSuperadminPrice(plan: SuperadminPrice["plan"], amountCents: number, revision: number) {
+  return apiRequest<ApiResponse<SuperadminPrice[]>>(`/api/v1/superadmin/prices/${plan}`, {
+    method: "PATCH", body: JSON.stringify({ amountCents, revision })
+  }, false);
+}
+
+export function retrySuperadminPrice(plan: SuperadminPrice["plan"]) {
+  return apiRequest<ApiResponse<SuperadminPrice[]>>(`/api/v1/superadmin/prices/${plan}/retry`, {
+    method: "POST"
+  }, false);
+}
+
 export function superadminLogout() {
   return apiRequest<ApiResponse<{ loggedOut: true }>>("/api/v1/superadmin/logout", {
     method: "POST"

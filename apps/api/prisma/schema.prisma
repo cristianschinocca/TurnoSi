@@ -202,6 +202,49 @@ model Branch {
   @@index([organizationId, isActive])
 }
 
+model BillingPlanPrice {
+  plan        SubscriptionPlan @id
+  amountCents Int
+  revision    Int              @default(0)
+  updatedAt   DateTime         @updatedAt
+}
+
+model BillingPriceChange {
+  id              String             @id @default(cuid())
+  plan            SubscriptionPlan
+  previousCents   Int
+  amountCents     Int
+  revision        Int
+  changedBy       String
+  createdAt       DateTime           @default(now())
+  tasks           BillingPriceTask[]
+
+  @@unique([plan, revision])
+}
+
+enum BillingPriceTaskStatus {
+  pending
+  updated
+  skipped
+  failed
+}
+
+model BillingPriceTask {
+  id             String                 @id @default(cuid())
+  changeId       String
+  organizationId String
+  preapprovalId  String
+  status         BillingPriceTaskStatus @default(pending)
+  attempts       Int                    @default(0)
+  nextAttemptAt  DateTime               @default(now())
+  errorCode      String?
+  updatedAt      DateTime               @updatedAt
+  change         BillingPriceChange     @relation(fields: [changeId], references: [id], onDelete: Cascade)
+
+  @@unique([changeId, preapprovalId])
+  @@index([status, nextAttemptAt])
+}
+
 model OrganizationSubscription {
   id                       String                            @id @default(cuid())
   organizationId           String                            @unique

@@ -11,6 +11,7 @@ import {
   type BillingPlan
 } from "../billing/billing.api";
 import { billingPlans } from "../billing/billing.plans";
+import { formatPlanPrice, useBillingPrices } from "../billing/billing-prices";
 
 const statusLabels = {
   pending: "Pendiente de autorización",
@@ -19,6 +20,7 @@ const statusLabels = {
 } as const;
 
 export function BillingSettings({ compact = false }: { compact?: boolean }) {
+  const prices = useBillingPrices();
   const session = useSessionQuery();
   const queryClient = useQueryClient();
   const subscriptionQuery = useQuery({
@@ -45,6 +47,8 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
       : subscription && subscription.status !== "authorized"
         ? statusLabels[subscription.status]
         : "";
+  const hasActivePaidSubscription =
+    subscription?.status === "authorized" && subscription.plan !== "trial";
   const effectivePayerEmail =
     payerEmail ||
     subscription?.payerEmail ||
@@ -124,7 +128,7 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
             </div>
           )}
 
-          {!subscription || subscription.status !== "authorized" ? (
+          {!hasActivePaidSubscription ? (
             <label className={`mx-auto grid max-w-md gap-1.5 text-left text-sm ${compact ? "mt-1" : "mt-5"}`}>
               <span className="font-semibold text-[var(--color-muted-strong)]">
                 Email de la cuenta de Mercado Pago
@@ -191,7 +195,7 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
                   </p>
 
                   <div className="dashboard-billing-plan-price">
-                    <p>{plan.id === "initial" ? "$15.000" : plan.price}</p>
+                    <p>{formatPlanPrice(prices.data, plan.id)}</p>
                     <span>{plan.period}</span>
                   </div>
 
@@ -209,7 +213,7 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
                       variant={current ? "secondary" : plan.recommended ? "accent" : "secondary"}
                       disabled={
                         current ||
-                        selectedPlan !== null ||
+                        !prices.data || selectedPlan !== null ||
                         !effectivePayerEmail.trim()
                       }
                       onClick={() => void subscribe(plan.id)}

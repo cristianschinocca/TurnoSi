@@ -2,7 +2,6 @@ export const paidBillingPlans = {
   initial: {
     id: "initial",
     mercadoPagoName: "Turnosi Inicial",
-    monthlyAmountArs: 15_000,
     limits: {
       branches: 1,
       members: 3,
@@ -19,7 +18,6 @@ export const paidBillingPlans = {
   professional: {
     id: "professional",
     mercadoPagoName: "Turnosi Profesional",
-    monthlyAmountArs: 24_000,
     limits: {
       branches: 3,
       members: 12,
@@ -36,7 +34,6 @@ export const paidBillingPlans = {
   operation: {
     id: "operation",
     mercadoPagoName: "Turnosi Operación",
-    monthlyAmountArs: 39_000,
     limits: {
       branches: 10,
       members: 40,

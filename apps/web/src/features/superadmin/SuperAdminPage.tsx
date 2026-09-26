@@ -9,6 +9,7 @@ import navHomeIcon from "../../components/assets/icons/navigation/home.svg";
 import navOrganizationsIcon from "../../components/assets/icons/settings/business-identity.svg";
 import navSubscriptionsIcon from "../../components/assets/icons/settings/payments-wallet.svg";
 import { Button } from "../../components/ui";
+import { PlanPrices } from "./PlanPrices";
 import {
   deleteSuperadminOrganization,
   getSuperadminOrganization,
@@ -466,6 +467,7 @@ export function SuperAdminPage() {
             </p>
           </div>
 
+          {activeSection === "subscriptions" && <PlanPrices />}
           {activeSection === "overview" ? (
           <>
           <div className="grid gap-3 sm:grid-cols-3">

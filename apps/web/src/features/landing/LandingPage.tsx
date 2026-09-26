@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { preloadAuthPage } from "@/app/route-loaders";
 import { billingPlans } from "../billing/billing.plans";
+import { formatPlanPrice, useBillingPrices } from "../billing/billing-prices";
 import turnoarLogo from "@/components/assets/logos/logo-turnoar.svg";
 import statusCheckIcon from "@/components/assets/icons/status/status-check.svg";
 
@@ -142,6 +143,7 @@ function LandingHeroParticles({ className = "" }: { className?: string }) {
 }
 
 export function LandingPage() {
+  const prices = useBillingPrices();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(() => window.scrollY > 12);
   const shouldReduceMotion = useReducedMotion();
@@ -1069,7 +1071,7 @@ export function LandingPage() {
 
                     <div className="landing-pricing-price">
                       <p>
-                        {plan.id === "initial" ? "$15.000" : plan.price}
+                        {formatPlanPrice(prices.data, plan.id)}
                       </p>
                       <span>
                         {plan.period}

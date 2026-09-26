@@ -15,6 +15,7 @@ import { ok } from "../../lib/http.js";
 import { requireEditor } from "../../lib/membership.js";
 import { paidBillingPlans } from "./billing.plans.js";
 import { createSubscriptionSchema } from "./billing.schemas.js";
+import { billingRequestOptions, lockBillingPrices } from "./billing-prices.service.js";
 
 export const billingRouter = Router();
 export const billingPublicRouter = Router();
@@ -54,7 +55,7 @@ function mercadoPagoConfig() {
       "Mercado Pago is not configured"
     );
   }
-  return new MercadoPagoConfig({ accessToken: env.MERCADOPAGO_ACCESS_TOKEN });
+  return new MercadoPagoConfig({ accessToken: env.MERCADOPAGO_ACCESS_TOKEN, options: billingRequestOptions });
 }
 
 function mercadoPagoClient() {
@@ -384,78 +385,66 @@ billingRouter.post("/subscription", async (request, response) => {
     payerEmail?.toLowerCase() ??
     user.email;
 
-  const existing = await prisma.organizationSubscription.findUnique({
-    where: { organizationId: tenant.organizationId }
-  });
-  const activeExisting =
-    existing &&
-    !isExpiredPendingSubscription(existing) &&
-    existing.status === "authorized" &&
-    existing.plan !== "trial" &&
-    Boolean(existing.mercadoPagoPreapprovalId);
-  if (activeExisting) {
-    throw new AppError(
-      409,
-      "SUBSCRIPTION_ALREADY_ACTIVE",
-      "Organization already has an active subscription"
-    );
-  }
-  const selectedPlan = plans[plan];
-  const subscription = await mercadoPagoClient().create({
-    body: {
-      reason: selectedPlan.mercadoPagoName,
-      external_reference: `${tenant.organizationId}:${plan}`,
-      payer_email: billingEmail,
-      back_url: `${env.WEB_ORIGIN.split(",")[0]}/dashboard?subscription=return`,
-      status: "pending",
-      auto_recurring: {
-        frequency: 1,
-        frequency_type: "months",
-        transaction_amount: selectedPlan.monthlyAmountArs,
-        currency_id: "ARS"
+  const checkoutUrl = await prisma.$transaction(async (tx) => {
+    await lockBillingPrices(tx);
+    const existing = await tx.organizationSubscription.findUnique({
+      where: { organizationId: tenant.organizationId }
+    });
+    const activeExisting =
+      existing &&
+      !isExpiredPendingSubscription(existing) &&
+      existing.status === "authorized" &&
+      existing.plan !== "trial" &&
+      Boolean(existing.mercadoPagoPreapprovalId);
+    if (activeExisting) {
+      throw new AppError(409, "SUBSCRIPTION_ALREADY_ACTIVE", "Organization already has an active subscription");
+    }
+    const price = await tx.billingPlanPrice.findUniqueOrThrow({ where: { plan } });
+    const subscription = await mercadoPagoClient().create({
+      body: {
+        reason: plans[plan].mercadoPagoName,
+        external_reference: `${tenant.organizationId}:${plan}`,
+        payer_email: billingEmail,
+        back_url: `${env.WEB_ORIGIN.split(",")[0]}/dashboard?subscription=return`,
+        status: "pending",
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: "months",
+          transaction_amount: price.amountCents / 100,
+          currency_id: "ARS"
+        }
       }
+    });
+    if (!subscription.id || !subscription.init_point) {
+      throw new AppError(502, "PAYMENT_PROVIDER_ERROR", "Mercado Pago did not return a checkout URL");
     }
-  });
-  if (!subscription.id || !subscription.init_point) {
-    throw new AppError(
-      502,
-      "PAYMENT_PROVIDER_ERROR",
-      "Mercado Pago did not return a checkout URL"
-    );
-  }
-
-  const keepCurrentAccess =
-    existing?.status === "authorized" &&
-    (existing.plan === "trial" || existing.source === "manual");
-  await prisma.organizationSubscription.upsert({
-    where: { organizationId: tenant.organizationId },
-    create: {
-      organizationId: tenant.organizationId,
-      plan,
-      status: normalizeStatus(subscription.status),
-      mercadoPagoPreapprovalId: subscription.id,
-      payerEmail: billingEmail,
-      nextPaymentAt: subscription.next_payment_date
-        ? new Date(subscription.next_payment_date)
-        : null
-    },
-    update: {
-      ...(keepCurrentAccess
-        ? {}
-        : {
-            plan,
-            status: normalizeStatus(subscription.status),
-            trialEndsAt: null
-          }),
-      mercadoPagoPreapprovalId: subscription.id,
-      payerEmail: billingEmail,
-      nextPaymentAt: subscription.next_payment_date
-        ? new Date(subscription.next_payment_date)
-        : null
-    }
-  });
-
-  response.status(201).json(ok({ checkoutUrl: subscription.init_point }));
+    const keepCurrentAccess =
+      existing?.status === "authorized" &&
+      (existing.plan === "trial" || existing.source === "manual");
+    await tx.organizationSubscription.upsert({
+      where: { organizationId: tenant.organizationId },
+      create: {
+        organizationId: tenant.organizationId,
+        plan,
+        status: normalizeStatus(subscription.status),
+        mercadoPagoPreapprovalId: subscription.id,
+        payerEmail: billingEmail,
+        nextPaymentAt: subscription.next_payment_date ? new Date(subscription.next_payment_date) : null
+      },
+      update: {
+        ...(keepCurrentAccess ? {} : {
+          plan,
+          status: normalizeStatus(subscription.status),
+          trialEndsAt: null
+        }),
+        mercadoPagoPreapprovalId: subscription.id,
+        payerEmail: billingEmail,
+        nextPaymentAt: subscription.next_payment_date ? new Date(subscription.next_payment_date) : null
+      }
+    });
+    return subscription.init_point;
+  }, { timeout: 25_000 });
+  response.status(201).json(ok({ checkoutUrl }));
 });
 
 billingPublicRouter.post("/mercadopago", async (request, response) => {

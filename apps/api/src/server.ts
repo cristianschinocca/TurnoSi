@@ -2,16 +2,20 @@ import { prisma } from "./database/prisma.js";
 import { createApp } from "./app.js";
 import { env } from "./config/env.js";
 import { logger } from "./lib/logger.js";
+import { startPriceSyncWorker } from "./modules/billing/billing-prices.service.js";
 
 const app = createApp();
+const stopPriceSyncWorker = startPriceSyncWorker();
 
 const server = app.listen(env.PORT, () => {
   logger.info("api listening", { port: env.PORT });
 });
 
 function shutdown(signal: string) {
+  const workerStopped = stopPriceSyncWorker();
   logger.info("shutdown initiated", { signal });
   server.close(async () => {
+    await workerStopped;
     await prisma.$disconnect();
     logger.info("shutdown complete");
     process.exit(0);
@@ -19,7 +23,7 @@ function shutdown(signal: string) {
   setTimeout(() => {
     logger.error("shutdown forced after timeout");
     process.exit(1);
-  }, 10_000);
+  }, 40_000);
 }
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));

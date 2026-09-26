@@ -11,6 +11,7 @@ import { ok } from "../../lib/http.js";
 import { authRateLimit } from "../../middlewares/rate-limit.js";
 import { auditLog } from "../audit/audit.service.js";
 import { deleteOrganizationWithData } from "../organizations/delete-organization.service.js";
+import { changeBillingPrice, changePriceSchema, getPriceChanges, pricePlanSchema, retryPriceChange } from "../billing/billing-prices.service.js";
 
 export const superadminRouter = Router();
 
@@ -209,6 +210,25 @@ superadminRouter.get("/overview", async (request, response) => {
   response.json(
     ok({ organizations, ownerAccounts, activeSubscriptions })
   );
+});
+
+superadminRouter.get("/prices", async (request, response) => {
+  requireSuperadmin(request);
+  response.json(ok(await getPriceChanges()));
+});
+
+superadminRouter.patch("/prices/:plan", authRateLimit, async (request, response) => {
+  const session = requireSuperadmin(request);
+  const plan = pricePlanSchema.parse(request.params.plan);
+  const input = changePriceSchema.parse(request.body);
+  await changeBillingPrice(plan, input, session.email);
+  response.json(ok(await getPriceChanges()));
+});
+
+superadminRouter.post("/prices/:plan/retry", authRateLimit, async (request, response) => {
+  requireSuperadmin(request);
+  await retryPriceChange(pricePlanSchema.parse(request.params.plan));
+  response.json(ok(await getPriceChanges()));
 });
 
 superadminRouter.get("/organizations", async (request, response) => {

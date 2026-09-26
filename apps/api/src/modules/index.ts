@@ -16,8 +16,14 @@ import { requireAuth } from "../middlewares/require-auth.js";
 import { resolveTenant } from "../middlewares/resolve-tenant.js";
 import { requireActiveSubscription } from "../middlewares/require-subscription.js";
 import { dashboardRouter } from "./dashboard/dashboard.routes.js";
+import { getBillingPrices } from "./billing/billing-prices.service.js";
+import { ok } from "../lib/http.js";
 
 export const apiRouter = Router();
+
+apiRouter.get("/public/billing/prices", async (_request, response) => {
+  response.json(ok(await getBillingPrices()));
+});
 
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/public/booking", publicBookingRouter);
