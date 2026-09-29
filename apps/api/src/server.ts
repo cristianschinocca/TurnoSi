@@ -3,16 +3,22 @@ import { createApp } from "./app.js";
 import { env } from "./config/env.js";
 import { logger } from "./lib/logger.js";
 import { startPriceSyncWorker } from "./modules/billing/billing-prices.service.js";
+import { startImageCleanupWorker } from "./modules/organizations/image-cleanup.service.js";
+import { startPendingSubscriptionsWorker } from "./modules/billing/pending-subscriptions.service.js";
 
 const app = createApp();
 const stopPriceSyncWorker = startPriceSyncWorker();
+const stopImageCleanupWorker = startImageCleanupWorker();
+const stopPendingSubscriptionsWorker = startPendingSubscriptionsWorker();
 
 const server = app.listen(env.PORT, () => {
   logger.info("api listening", { port: env.PORT });
 });
 
 function shutdown(signal: string) {
-  const workerStopped = stopPriceSyncWorker();
+  const workerStopped = Promise.all([
+    stopPriceSyncWorker(), stopImageCleanupWorker(), stopPendingSubscriptionsWorker()
+  ]);
   logger.info("shutdown initiated", { signal });
   server.close(async () => {
     await workerStopped;

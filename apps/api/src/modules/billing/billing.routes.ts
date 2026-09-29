@@ -21,7 +21,6 @@ export const billingRouter = Router();
 export const billingPublicRouter = Router();
 
 const plans = paidBillingPlans;
-const pendingSubscriptionTtlMs = 30 * 60 * 1000;
 const failedPaymentGraceMs = 3 * 24 * 60 * 60 * 1000;
 
 type MercadoPagoSubscription = {
@@ -109,16 +108,6 @@ function paymentStatusNeedsGrace(status: ReturnType<typeof normalizePaymentStatu
 
 function amountToCents(amount?: number | null) {
   return typeof amount === "number" ? Math.round(amount * 100) : null;
-}
-
-function isExpiredPendingSubscription(subscription: {
-  status: string;
-  updatedAt: Date;
-}) {
-  return (
-    subscription.status === "pending" &&
-    subscription.updatedAt.getTime() < Date.now() - pendingSubscriptionTtlMs
-  );
 }
 
 async function findAuthorizedMercadoPagoSubscription(organizationId: string) {
@@ -257,12 +246,6 @@ billingRouter.get("/subscription", async (request, response) => {
       data: { status: "canceled" }
     });
   }
-  if (subscription && isExpiredPendingSubscription(subscription)) {
-    subscription = await prisma.organizationSubscription.update({
-      where: { id: subscription.id },
-      data: { status: "canceled" }
-    });
-  }
   if (subscription?.mercadoPagoPreapprovalId && env.MERCADOPAGO_ACCESS_TOKEN) {
     try {
       const remote = await mercadoPagoClient().get({
@@ -392,7 +375,6 @@ billingRouter.post("/subscription", async (request, response) => {
     });
     const activeExisting =
       existing &&
-      !isExpiredPendingSubscription(existing) &&
       existing.status === "authorized" &&
       existing.plan !== "trial" &&
       Boolean(existing.mercadoPagoPreapprovalId);

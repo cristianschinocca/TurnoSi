@@ -292,7 +292,9 @@ model OrganizationSubscriptionPayment {
 model OrganizationLogo {
   organizationId String       @id
   contentType    String
-  data           Bytes
+  data           Bytes?
+  storageObjectId String?      @unique
+  storageObject   ImageStorageObject? @relation(fields: [storageObjectId], references: [id], onDelete: Restrict)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -306,12 +308,28 @@ model OrganizationGalleryImage {
   focusY         Int          @default(50)
   zoom           Int          @default(100)
   contentType    String
-  data           Bytes
+  data           Bytes?
+  storageObjectId String?      @unique
+  storageObject   ImageStorageObject? @relation(fields: [storageObjectId], references: [id], onDelete: Restrict)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
   @@unique([organizationId, slot])
+}
+
+model ImageStorageObject {
+  id             String @id @default(cuid())
+  bucket         String
+  path           String
+  deleteAfter    DateTime?
+  attempts       Int @default(0)
+  createdAt      DateTime @default(now())
+  logo           OrganizationLogo?
+  galleryImage   OrganizationGalleryImage?
+
+  @@unique([bucket, path])
+  @@index([deleteAfter])
 }
 
 model Membership {

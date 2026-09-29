@@ -1,12 +1,9 @@
-import { MercadoPagoConfig, PreApproval } from "mercadopago";
-
-import { env } from "../config/env.js";
 import { prisma } from "../database/prisma.js";
 import { logger } from "../lib/logger.js";
+import { cleanupPendingSubscriptions } from "../modules/billing/pending-subscriptions.service.js";
 
 const now = new Date();
 const retentionLimit = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-const pendingSubscriptionLimit = new Date(now.getTime() - 30 * 60 * 1000);
 
 const [sessions, passwordResets, rateLimits] = await prisma.$transaction([
   prisma.authSession.deleteMany({
@@ -36,45 +33,7 @@ logger.info("cleanup completed", {
   rateLimits: rateLimits.count
 });
 
-let mercadoPagoPendingSubscriptions = 0;
-if (env.MERCADOPAGO_ACCESS_TOKEN) {
-  const client = new PreApproval(
-    new MercadoPagoConfig({ accessToken: env.MERCADOPAGO_ACCESS_TOKEN })
-  );
-  const result = await client.search({ options: { limit: 50 } });
-  const pendingSubscriptions = (result.results ?? []).filter((subscription) => {
-    const createdAt = subscription.date_created
-      ? new Date(subscription.date_created)
-      : null;
-    return (
-      subscription.id &&
-      subscription.status === "pending" &&
-      String(subscription.reason ?? "").toLowerCase().includes("turnosi") &&
-      createdAt &&
-      createdAt < pendingSubscriptionLimit
-    );
-  });
-
-  for (const subscription of pendingSubscriptions) {
-    try {
-      await client.update({
-        id: subscription.id!,
-        body: { status: "cancelled" }
-      });
-      mercadoPagoPendingSubscriptions += 1;
-    } catch {
-      // Mercado Pago may already have transitioned the subscription.
-    }
-  }
-}
-
-const localPendingSubscriptions = await prisma.organizationSubscription.updateMany({
-  where: {
-    status: "pending",
-    updatedAt: { lt: pendingSubscriptionLimit }
-  },
-  data: { status: "canceled" }
-});
+const pendingSubscriptions = await cleanupPendingSubscriptions();
 
 const graceExpiredSubscriptions = await prisma.organizationSubscription.updateMany({
   where: {
@@ -89,9 +48,8 @@ const graceExpiredSubscriptions = await prisma.organizationSubscription.updateMa
 });
 
 logger.info("billing cleanup completed", {
-  localPendingSubscriptions: localPendingSubscriptions.count,
+  pendingSubscriptions,
   graceExpiredSubscriptions: graceExpiredSubscriptions.count,
-  mercadoPagoPendingSubscriptions
 });
 
 await prisma.$disconnect();

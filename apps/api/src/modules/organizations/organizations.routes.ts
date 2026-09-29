@@ -19,6 +19,7 @@ import { assertPlanLimitAvailable } from "../billing/plan-limits.service.js";
 import { customersRouter } from "../customers/customers.routes.js";
 import { servicesRouter } from "../services/services.routes.js";
 import { deleteOrganizationWithData } from "./delete-organization.service.js";
+import { deleteOrganizationImage, saveOrganizationImage } from "./organization-images.service.js";
 import {
   branchParamsSchema,
   branchSchema,
@@ -339,18 +340,19 @@ organizationsRouter.put(
         code: "INVALID_LOGO"
       });
     }
-    await prisma.organizationLogo.upsert({
-      where: { organizationId: tenant.organizationId },
-      create: {
-        organizationId: tenant.organizationId,
-        contentType: optimizedLogo.contentType,
-        data: optimizedLogo.data
-      },
-      update: { contentType: optimizedLogo.contentType, data: optimizedLogo.data }
-    });
+    await saveOrganizationImage(tenant.organizationId, "logo", optimizedLogo);
     response.json(ok({ uploaded: true }));
   }
 );
+
+organizationsRouter.delete("/current/logo", authRateLimit, async (request, response) => {
+  const tenant = request.tenant!;
+  if (tenant.role !== "owner" && tenant.role !== "admin") {
+    throw new AppError(403, "FORBIDDEN", "Insufficient permissions");
+  }
+  await deleteOrganizationImage(tenant.organizationId, "logo");
+  response.json(ok({ deleted: true }));
+});
 
 organizationsRouter.put(
   "/current/gallery/:slot",
@@ -402,24 +404,7 @@ organizationsRouter.put(
         code: "INVALID_GALLERY_IMAGE"
       });
     }
-    await prisma.organizationGalleryImage.upsert({
-      where: {
-        organizationId_slot: {
-          organizationId: tenant.organizationId,
-          slot
-        }
-      },
-      create: {
-        organizationId: tenant.organizationId,
-        slot,
-        focusX: 50,
-        focusY: 50,
-        zoom: 100,
-        contentType: optimizedImage.contentType,
-        data: optimizedImage.data
-      },
-      update: { contentType: optimizedImage.contentType, data: optimizedImage.data }
-    });
+    await saveOrganizationImage(tenant.organizationId, slot as 0 | 1, optimizedImage);
     response.json(
       ok({
         uploaded: true,
@@ -453,12 +438,7 @@ organizationsRouter.delete(
       });
     }
 
-    await prisma.organizationGalleryImage.deleteMany({
-      where: {
-        organizationId: tenant.organizationId,
-        slot
-      }
-    });
+    await deleteOrganizationImage(tenant.organizationId, slot as 0 | 1);
     response.json(ok({ deleted: true }));
   }
 );

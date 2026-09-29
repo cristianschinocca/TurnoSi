@@ -13,6 +13,7 @@ import {
   updateOrganizationSettingsSection,
   completeOnboarding,
   deleteOrganizationGalleryImage,
+  deleteOrganizationLogo,
   deleteCurrentOrganization,
   type GalleryUploadResult,
   uploadOrganizationGalleryImage,
@@ -205,6 +206,7 @@ export function DashboardSettingsView({
   const [message, setMessage] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState("");
+  const [isDeletingLogo, setIsDeletingLogo] = useState(false);
   const [galleryFiles, setGalleryFiles] = useState<(File | null)[]>([null, null]);
   const [galleryPreviews, setGalleryPreviews] = useState(["", ""]);
   const [galleryUploadStates, setGalleryUploadStates] = useState<
@@ -446,7 +448,7 @@ function moneyToCents(value: string) {
   }
 
   async function saveSettings() {
-    if (isSaving) return false;
+    if (isSaving || isDeletingLogo) return false;
     if (activeTab === "business" && settings.businessName.trim().length < 2) {
       setMessage("Ingresá el nombre del local.");
       return false;
@@ -877,6 +879,7 @@ function moneyToCents(value: string) {
   }
 
   function handleLogoChange(event: ChangeEvent<HTMLInputElement>) {
+    if (isDeletingLogo || isSaving) return;
     const file = event.target.files?.[0] ?? null;
     if (file && file.size > 8 * 1024 * 1024) {
       setMessage("El logo no puede superar 8 MB.");
@@ -948,6 +951,32 @@ function moneyToCents(value: string) {
           : item
       )
     );
+  }
+
+  async function removeLogo() {
+    if (isDeletingLogo || isSaving) return;
+    setIsDeletingLogo(true);
+    setMessage("");
+    try {
+      await deleteOrganizationLogo();
+      if (logoPreview.startsWith("blob:")) URL.revokeObjectURL(logoPreview);
+      setLogoFile(null);
+      setLogoPreview("");
+      setLoadedOrganizationSettings((current) => ({ ...current, hasLogo: false, logoVersion: null }));
+      queryClient.setQueryData<OrganizationSettings>(queryKeys.organizationSettings,
+        (current) => current ? { ...current, hasLogo: false, logoVersion: null } : current);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.session });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.publicBooking(publicSlug) });
+      if (organizationSlug && organizationSlug !== publicSlug) {
+        await queryClient.invalidateQueries({ queryKey: queryKeys.publicBooking(organizationSlug) });
+      }
+      window.dispatchEvent(new Event("turnosi:logo-updated"));
+      setToast("Logo eliminado.");
+    } catch {
+      setMessage("No pudimos eliminar el logo.");
+    } finally {
+      setIsDeletingLogo(false);
+    }
   }
 
   async function confirmRemoveGalleryImage() {
@@ -1323,6 +1352,12 @@ function moneyToCents(value: string) {
                           className="sr-only"
                         />
                       </label>
+                      {logoPreview && (
+                        <Button type="button" variant="secondary" className="mt-2 w-full"
+                          disabled={isDeletingLogo || isSaving} onClick={() => void removeLogo()}>
+                          {isDeletingLogo ? "Eliminando..." : "Eliminar logo"}
+                        </Button>
+                      )}
                     </div>
                   </div>
 

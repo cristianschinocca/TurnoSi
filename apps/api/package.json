@@ -14,7 +14,8 @@
     "prisma:migrate:dev": "node scripts/run-prisma.mjs migrate dev",
     "prisma:migrate:deploy": "node scripts/run-prisma.mjs migrate deploy",
     "prisma:seed": "tsx src/scripts/seed.ts",
-    "jobs:cleanup": "tsx src/jobs/cleanup-expired.ts"
+    "jobs:cleanup": "tsx src/jobs/cleanup-expired.ts",
+    "images:migrate": "tsx src/scripts/migrate-images.ts"
   },
   "prisma": {
     "seed": "tsx src/scripts/seed.ts"

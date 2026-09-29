@@ -51,6 +51,12 @@ export function uploadOrganizationLogo(file: File) {
   );
 }
 
+export function deleteOrganizationLogo() {
+  return apiRequest<{ success: true; data: { deleted: true } }>(
+    "/api/v1/organizations/current/logo", { method: "DELETE" }
+  );
+}
+
 export type GalleryUploadResult = {
   uploaded: true;
   originalBytes: number;
