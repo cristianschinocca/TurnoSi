@@ -168,7 +168,14 @@ export function DashboardAvailabilityView({ subscription }: DashboardAvailabilit
 
   useEffect(() => {
     if (!exceptionsQuery.data) return;
-    setExceptions(exceptionsQuery.data);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setExceptions(exceptionsQuery.data);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [exceptionsQuery.data]);
 
   useEffect(() => {
