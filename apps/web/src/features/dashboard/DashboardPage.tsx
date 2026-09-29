@@ -911,17 +911,14 @@ export function DashboardPage({ brand }: DashboardPageProps) {
             aria-modal="true"
             className="modal-panel-enter modal-scroll-panel w-full max-w-6xl rounded-xl border border-[var(--color-border)] bg-[#ffffff] shadow-[0_28px_90px_rgba(32,24,54,0.34)]"
           >
-            <div className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] p-4 sm:p-5">
+            <div className="billing-modal-header flex items-start justify-between gap-4 border-b border-[var(--color-border)] p-4 sm:p-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent)]">
-                  Planes
-                </p>
-                <h2 className="mt-1 text-xl font-semibold">Mejorar plan</h2>
+                <h2 className="text-xl font-semibold">Planes y facturación</h2>
               </div>
               <ModalCloseButton onClick={() => setShowBillingPlans(false)} />
             </div>
-            <div className="p-3 sm:p-5">
-              <BillingSettings />
+            <div className="billing-modal-content p-3 sm:p-5">
+              <BillingSettings embedded />
             </div>
           </section>
         </div>

@@ -753,6 +753,63 @@ samp,
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
+.billing-settings-card {
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.billing-settings-card > div:first-child {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.billing-settings-card-body {
+  padding-top: 22px;
+}
+
+.billing-settings-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 390px);
+  align-items: end;
+  gap: 24px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.billing-settings-top.is-compact {
+  display: block;
+  max-width: none;
+}
+
+.billing-settings-top.is-compact .billing-settings-account-email {
+  max-width: 390px;
+  margin: 0 auto;
+}
+
+.billing-settings-intro {
+  min-width: 0;
+}
+
+.billing-settings-account-email {
+  align-self: end;
+  padding-bottom: 10px;
+}
+
+.billing-modal-content .billing-settings-card-body {
+  padding-top: 20px;
+}
+
+@media (max-width: 700px) {
+  .billing-settings-top {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .billing-settings-card-body {
+    padding-top: 16px;
+  }
+}
+
 .dashboard-billing-plan-card::before {
   content: "";
   position: absolute;

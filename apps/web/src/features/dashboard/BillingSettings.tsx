@@ -19,7 +19,7 @@ const statusLabels = {
   canceled: "Cancelado"
 } as const;
 
-export function BillingSettings({ compact = false }: { compact?: boolean }) {
+export function BillingSettings({ compact = false, embedded = false }: { compact?: boolean; embedded?: boolean }) {
   const prices = useBillingPrices();
   const session = useSessionQuery();
   const queryClient = useQueryClient();
@@ -34,7 +34,6 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
   const [selectedPlan, setSelectedPlan] = useState<BillingPlan | "trial" | null>(
     null
   );
-  const [payerEmail, setPayerEmail] = useState("");
   const [message, setMessage] = useState("");
   const subscription = subscriptionQuery.data;
   const currentPlanName =
@@ -49,11 +48,7 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
         : "";
   const hasActivePaidSubscription =
     subscription?.status === "authorized" && subscription.plan !== "trial";
-  const effectivePayerEmail =
-    payerEmail ||
-    subscription?.payerEmail ||
-    session.data?.data.user.email ||
-    "";
+  const effectivePayerEmail = session.data?.data.user.email ?? "";
 
   async function subscribe(plan: BillingPlan) {
     if (selectedPlan !== null) return;
@@ -96,52 +91,42 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="billing-settings-card">
+      {(!embedded || subscription) && <CardHeader>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
+          {!embedded && <div>
             <h2 className="text-base font-semibold">Plan y facturación</h2>
             <p className="mt-1 text-sm text-[var(--color-muted-strong)]">
-              La prueba se activa en TurnoSi. Los planes pagos usan Mercado Pago.
+              La prueba se activa en Turnoar. Los planes pagos usan Mercado Pago.
             </p>
-          </div>
+          </div>}
           {subscription && (
             <span className="w-fit rounded-full bg-[rgba(32,24,54,0.08)] px-3 py-1 text-xs font-semibold">
               {subscriptionStatusLabel}
             </span>
           )}
         </div>
-      </CardHeader>
-      <CardBody className={compact ? "p-4" : "p-4 sm:p-6"}>
+      </CardHeader>}
+      <CardBody className={`${compact ? "p-4" : "p-4 sm:p-6"} billing-settings-card-body`}>
         <div className="mx-auto max-w-6xl">
-          {!compact && (
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[var(--color-accent)]">
-                Activá tu cuenta
-              </p>
-              <h3 className="mt-2 text-2xl font-semibold text-[var(--color-ink)]">
-                Elegí cómo querés empezar
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--color-muted-strong)]">
-                Podés probar el plan Inicial gratis por 7 días o activar un plan mensual con Mercado Pago.
-              </p>
-            </div>
-          )}
+          <div className={`billing-settings-top ${compact ? "is-compact" : ""}`}>
+            {!compact && (
+              <div className="billing-settings-intro">
+                <h3 className="text-xl font-semibold text-[var(--color-ink)]">
+                  Elegí un plan
+                </h3>
+                <p className="mt-1 text-sm leading-6 text-[var(--color-muted-strong)]">
+                  Empezá con 7 días gratis o elegí un plan mensual.
+                </p>
+              </div>
+            )}
 
-          {!hasActivePaidSubscription ? (
-            <label className={`mx-auto grid max-w-md gap-1.5 text-left text-sm ${compact ? "mt-1" : "mt-5"}`}>
-              <span className="font-semibold text-[var(--color-muted-strong)]">
-                Email de la cuenta de Mercado Pago
-              </span>
-              <input
-                type="email"
-                value={effectivePayerEmail}
-                onChange={(event) => setPayerEmail(event.target.value)}
-                placeholder="Ej: comprador@mercadopago.com"
-                className="h-11 rounded-lg border border-[var(--color-border-strong)] bg-white/80 px-3 text-center outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(253,134,6,0.18)]"
-              />
-            </label>
-          ) : null}
+            {!hasActivePaidSubscription && effectivePayerEmail && (
+              <p className="billing-settings-account-email text-sm text-[var(--color-muted-strong)]">
+                Se usará el email de tu cuenta: <strong className="text-[var(--color-ink)]">{effectivePayerEmail}</strong>
+              </p>
+            )}
+          </div>
 
           <div className={`${compact ? "mt-5" : "mt-8"} grid justify-items-center gap-4 lg:grid-cols-3`}>
             {!subscription?.trialStartedAt && (
@@ -236,11 +221,6 @@ export function BillingSettings({ compact = false }: { compact?: boolean }) {
         {message && (
           <p className="mt-4 rounded-md border border-[#e7b9b2] bg-[#fde8e5] px-3 py-2 text-sm text-[#9f1f16]">
             {message}
-          </p>
-        )}
-        {!effectivePayerEmail && (
-          <p className="mt-4 text-sm font-medium text-[#9f1f16]">
-            Ingresá el email del comprador de Mercado Pago para habilitar los planes.
           </p>
         )}
       </CardBody>
