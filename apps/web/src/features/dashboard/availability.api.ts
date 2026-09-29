@@ -1,4 +1,5 @@
 import { apiRequest } from "../../lib/api";
+import { formatArsAmount } from "../../lib/format";
 import type {
   AvailabilityException,
   AvailabilityResource,
@@ -91,7 +92,7 @@ export async function getAvailabilityCatalog(branchId?: string) {
       duration: `${item.durationMinutes} min`,
       capacity: String(item.capacity),
       buffer: `${item.bufferMinutes} min`,
-      price: item.priceCents == null ? "" : String(item.priceCents / 100),
+      price: item.priceCents == null ? "" : formatArsAmount(String(item.priceCents / 100)),
       resource: item.resourceName || "Sin asignar",
       online: item.online
     }))
@@ -100,6 +101,15 @@ export async function getAvailabilityCatalog(branchId?: string) {
 
 function parseMinutes(value: string) {
   return Number.parseInt(value, 10) || 0;
+}
+
+function parsePrice(value: string) {
+  const normalized = value.trim().replace(/\$/g, "").replace(/\s/g, "");
+  if (!normalized) return null;
+  const amount = normalized.includes(",")
+    ? Number(normalized.replace(/\./g, "").replace(",", "."))
+    : Number(normalized);
+  return Number.isFinite(amount) ? Math.round(amount * 100) : null;
 }
 
 export function saveAvailabilityCatalogItem(item: AvailabilityResource, branchId?: string) {
@@ -116,9 +126,7 @@ export function saveAvailabilityCatalogItem(item: AvailabilityResource, branchId
         durationMinutes: parseMinutes(item.duration),
         capacity: Math.max(1, parseMinutes(item.capacity)),
         bufferMinutes: parseMinutes(item.buffer),
-        priceCents: item.price.trim()
-          ? Math.round(Number(item.price.replace(/\./g, "").replace(",", ".")) * 100)
-          : null,
+        priceCents: parsePrice(item.price),
         resourceName: "",
         online: item.online
       })

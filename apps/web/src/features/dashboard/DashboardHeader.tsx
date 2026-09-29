@@ -36,8 +36,8 @@ export function DashboardHeader({
     <header className="bg-[var(--color-dashboard-page)] px-4 py-2 sm:px-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
-          <h1 className={`mt-1 font-extrabold ${activeView === "agenda" ? "text-[1.125rem]" : "text-xl sm:text-2xl"}`}>{pageTitle}</h1>
-          <p className={`mt-1 max-w-2xl leading-5 text-[var(--color-muted-strong)] ${activeView === "agenda" ? "text-[0.6875rem]" : "text-xs"}`}>
+          <h1 className="mt-1 text-[1.125rem] font-extrabold">{pageTitle}</h1>
+          <p className="mt-1 max-w-2xl text-[0.6875rem] leading-5 text-[var(--color-muted-strong)]">
             {pageDescription}
           </p>
         </div>

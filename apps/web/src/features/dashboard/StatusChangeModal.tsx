@@ -79,7 +79,7 @@ export function StatusChangeModal({
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
               {draft.isCorrection ? "Editar estado" : "Cambiar estado"}
             </p>
-            <h2 className="mt-2 text-xl font-semibold leading-tight text-[var(--color-ink)]">
+            <h2 className="mt-2 text-lg font-semibold leading-tight text-[var(--color-ink)]">
               Cambiar estado del turno
             </h2>
           </div>
@@ -87,12 +87,9 @@ export function StatusChangeModal({
         </div>
 
         <section className="mt-4 rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-3">
-          <div className="flex items-start gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[rgba(253,134,6,0.12)] text-lg text-[var(--color-ink)]">
-              ✂
-            </div>
+          <div className="border-l-2 border-[var(--color-ink)] pl-3">
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-[var(--color-ink)]">
+              <p className="truncate text-sm font-semibold text-[var(--color-ink)]">
                 {draft.appointment.service}
               </p>
               <p className="mt-1 text-xs text-[var(--color-muted)]">
@@ -127,7 +124,7 @@ export function StatusChangeModal({
         </section>
 
         <section className="mt-4">
-          <h3 className="text-sm font-semibold text-[var(--color-muted-strong)]">
+          <h3 className="text-xs font-semibold text-[var(--color-muted-strong)]">
             Seleccioná el nuevo estado
           </h3>
           <div className="mt-3 divide-y divide-[var(--color-border)]">
@@ -159,10 +156,10 @@ export function StatusChangeModal({
                 />
               </span>
               <span className="grid min-w-0 gap-1 sm:grid-cols-[150px_1fr] sm:items-center">
-                <span className="text-sm font-semibold text-[var(--color-ink)]">
+                <span className="text-xs font-semibold text-[var(--color-ink)]">
                   {statusModalLabel[status]}
                 </span>
-                <span className="text-xs text-[var(--color-muted)]">
+                <span className="text-[0.6875rem] text-[var(--color-muted)]">
                   {getStatusModalDescription(status)}
                 </span>
               </span>
@@ -220,22 +217,13 @@ export function StatusChangeModal({
           </section>
         )}
 
-        <p className="mt-4 flex items-start gap-2 border-t border-[var(--color-border)] pt-3 text-xs leading-5 text-[var(--color-muted)]">
-          <span
-            className={`mt-2 h-2 w-2 shrink-0 rounded-full ${
-              draft.nextStatus
-                ? statusDotClassName[draft.nextStatus]
-                : "bg-[var(--color-muted)]"
-            }`}
-          />
-          Este cambio quedará registrado en auditoría.
-        </p>
         <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             type="button"
             disabled={isConfirming}
             onClick={onCancel}
-            className={`h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-4 text-xs font-semibold text-[var(--color-ink)] disabled:cursor-not-allowed disabled:opacity-60 ${buttonMotionClass}`}
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className={`h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-3 font-semibold text-[var(--color-ink)] disabled:cursor-not-allowed disabled:opacity-60 ${buttonMotionClass}`}
           >
             Cancelar
           </button>
@@ -243,9 +231,10 @@ export function StatusChangeModal({
             type="button"
             disabled={!draft.nextStatus || !depositIsValid || isConfirming}
             onClick={onConfirm}
-            className={`h-8 rounded-md px-4 text-xs font-semibold ${buttonMotionClass} ${
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className={`h-8 rounded-md px-3 font-semibold ${buttonMotionClass} ${
               draft.nextStatus
-                ? "bg-[var(--color-accent)] text-[var(--color-button-text)] shadow-[0_14px_30px_rgba(253,134,6,0.22)]"
+                ? "bg-[var(--color-ink)] text-[var(--color-button-text)]"
                 : "cursor-not-allowed bg-[rgba(32,24,54,0.12)] text-[var(--color-muted)]"
             }`}
           >

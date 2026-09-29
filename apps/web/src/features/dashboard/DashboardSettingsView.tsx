@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Button, Card, CardBody, CardHeader, Toast } from "../../components/ui";
 import { ApiError, getApiUrl } from "../../lib/api";
+import { formatArsAmount, formatArsInput } from "../../lib/format";
 import { queryKeys } from "../../lib/query-keys";
 import { AccountAccessSettings } from "./AccountAccessSettings";
 import { markOnboardingGuideSeen } from "./account.api";
@@ -40,6 +41,8 @@ import paymentsHeaderIcon from "../../components/assets/icons/settings/payments-
 import paymentsWalletIcon from "../../components/assets/icons/settings/payments-wallet.svg";
 import statusCheckIcon from "../../components/assets/icons/status/status-check.svg";
 import statusXIcon from "../../components/assets/icons/status/status-x.svg";
+import pencilActionIcon from "../../components/assets/icons/actions/pencil.svg";
+import trashActionIcon from "../../components/assets/icons/actions/trash.svg";
 
 function createPublicSlug(value: string) {
   return value
@@ -150,7 +153,7 @@ function mergeOrganizationSettingsIntoLocal(
   const depositAmount =
     organization.depositAmountCents === null || organization.depositAmountCents === undefined
       ? ""
-      : String(organization.depositAmountCents / 100);
+      : formatArsAmount(String(organization.depositAmountCents / 100)).replace(/^\$/, "");
 
   return {
     ...current,
@@ -1306,9 +1309,6 @@ function moneyToCents(value: string) {
                         <span className="font-semibold text-[var(--color-muted-strong)]">
                           Logo del negocio
                         </span>
-                        <span className="rounded-full bg-[rgba(32,24,54,0.08)] px-2 py-0.5 text-[0.625rem] font-semibold text-[var(--color-muted-strong)]">
-                          Opcional
-                        </span>
                       </div>
                       <div className="grid items-start gap-3 sm:grid-cols-[96px_minmax(0,1fr)]">
                         <div className="grid h-24 w-24 place-items-center overflow-hidden rounded-full border border-[var(--color-border)] bg-[#ffffff] p-2 shadow-sm">
@@ -1342,8 +1342,8 @@ function moneyToCents(value: string) {
                           />
                         </label>
                       </div>
-                      <label className="mt-3 flex min-h-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[var(--color-border)] bg-[#ffffff] px-3 py-2 text-center text-xs font-semibold hover:border-[var(--color-accent)] hover:bg-[rgba(32,24,54,0.08)]">
-                        <span className="text-sm leading-none">✎</span>
+                      <label className="group mt-3 flex min-h-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[var(--color-border-strong)] bg-[#ffffff] px-3 py-2 text-center text-xs font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-accent)] hover:bg-[#ffffff] hover:shadow-md active:translate-y-0">
+                        <img src={pencilActionIcon} alt="" aria-hidden="true" className="h-3.5 w-3.5 opacity-80 transition duration-200 group-hover:-rotate-6 group-hover:scale-110" />
                         <span>{logoPreview ? "Cambiar logo" : "Subir logo"}</span>
                         <input
                           type="file"
@@ -1353,8 +1353,13 @@ function moneyToCents(value: string) {
                         />
                       </label>
                       {logoPreview && (
-                        <Button type="button" variant="secondary" className="mt-2 w-full"
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          style={{ fontSize: "0.75rem", lineHeight: "1rem", fontWeight: 600 }}
+                          className="group mt-2 h-8 w-full gap-2 px-3 py-1 text-xs font-semibold text-[var(--color-ink)] hover:border-[#e7b9b2] hover:bg-[#fde8e5] hover:text-[#9f1f16]"
                           disabled={isDeletingLogo || isSaving} onClick={() => void removeLogo()}>
+                          <img src={trashActionIcon} alt="" aria-hidden="true" className="h-3.5 w-3.5 opacity-75 transition duration-200 group-hover:scale-110 group-hover:opacity-100 group-hover:[filter:invert(18%)_sepia(85%)_saturate(2628%)_hue-rotate(352deg)_brightness(91%)_contrast(93%)]" />
                           {isDeletingLogo ? "Eliminando..." : "Eliminar logo"}
                         </Button>
                       )}
@@ -1394,7 +1399,7 @@ function moneyToCents(value: string) {
                             ? "border-[#d65a50] focus:border-[#d65a50] focus:ring-[rgba(214,90,80,0.16)]"
                             : "border-[var(--color-border-strong)] focus:border-[var(--color-accent)] focus:ring-[rgba(253,134,6,0.2)]"
                         }`}
-                      >
+                        >
                         <option value="">Seleccionar rubro</option>
                         {businessCategories.map((category) => (
                           <option key={category} value={category}>
@@ -1407,7 +1412,7 @@ function moneyToCents(value: string) {
                         ⌄
                       </span>
                     </label>
-                    <label className="relative grid gap-1.5 text-sm md:col-span-2">
+                    <label className="relative grid gap-1 text-xs md:col-span-2">
                       <span className="font-semibold text-[var(--color-muted-strong)]">
                         Descripción pública
                       </span>
@@ -1749,12 +1754,13 @@ function moneyToCents(value: string) {
                       onChange={(event) =>
                         updateSetting("depositEnabled", event.target.checked)
                       }
-                      className="h-5 w-5 cursor-pointer accent-[var(--color-accent)] disabled:cursor-not-allowed"
+                      className="h-5 w-5 cursor-pointer rounded-md border border-[var(--color-border-strong)] accent-[var(--color-ink)] transition duration-200 hover:border-[var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(32,24,54,0.18)] disabled:cursor-not-allowed"
                     />
                   </label>
                   <SettingsField
                     label="Monto de seña"
                     prefix="$"
+                    formatCurrency
                     placeholder="Ej: 5000"
                     highlightChanges={showUnsavedState}
                     savedValue={savedSettings.depositAmount}
@@ -1775,7 +1781,8 @@ function moneyToCents(value: string) {
                       updateSetting("mercadoPagoConnected", false);
                       updateSetting("depositEnabled", false);
                     }}
-                    className="w-fit rounded-lg border border-[#e7b9b2] bg-[#ffffff] px-3 py-2 text-sm font-semibold text-[#9f1f16] hover:bg-[#fde8e5]"
+                    style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
+                    className="w-fit rounded-md border border-[#e7b9b2] bg-[#ffffff] px-3 py-1.5 font-semibold text-[#9f1f16] hover:bg-[#fde8e5]"
                   >
                     Desconectar
                   </button>
@@ -1809,7 +1816,12 @@ function moneyToCents(value: string) {
             {hasActiveSectionChanges && (
               <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end md:col-span-2">
                 {!isOnboarding && (
-                  <Button type="button" onClick={discardSettingsChanges} className="w-full sm:w-auto">
+                  <Button
+                    type="button"
+                    onClick={discardSettingsChanges}
+                    style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
+                    className="h-8 w-full px-3 py-1 sm:w-auto"
+                  >
                     Descartar
                   </Button>
                 )}
@@ -1817,7 +1829,8 @@ function moneyToCents(value: string) {
                   type="submit"
                   variant="primary"
                   disabled={isSaving}
-                  className="w-full sm:w-auto"
+                  style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
+                  className="h-8 w-full px-3 py-1 sm:w-auto"
                 >
                   {isSaving
                     ? "Guardando..."
@@ -1856,7 +1869,7 @@ function moneyToCents(value: string) {
             </div>
           </CardHeader>
           <CardBody className="p-3 sm:p-4">
-            <div className="flex flex-col gap-3 rounded-lg border border-[#e7b9b2] bg-[#ffffff] p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-lg border border-[#ead5d2] bg-[#ffffff] p-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-[#8f1b13]">
                   Eliminar cuenta
@@ -1868,6 +1881,7 @@ function moneyToCents(value: string) {
               <Button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
+                style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
                 className="h-8 px-3 text-xs border-[#b42318] text-[#b42318] hover:bg-[#fde8e5]"
               >
                 Eliminar cuenta
@@ -2093,6 +2107,7 @@ function moneyToCents(value: string) {
 function SettingsField({
   className = "",
   actionHref,
+  formatCurrency = false,
   highlightChanges = false,
   label,
   maxLength,
@@ -2114,6 +2129,7 @@ function SettingsField({
   readOnly?: boolean;
   savedValue?: string;
   value: string;
+  formatCurrency?: boolean;
 }) {
   const changed =
     highlightChanges && savedValue !== undefined && value !== savedValue;
@@ -2121,14 +2137,14 @@ function SettingsField({
   return (
     <label className={`relative grid min-w-0 gap-1 text-xs ${className}`}>
       <span className="font-semibold text-[var(--color-muted-strong)]">{label}</span>
-      <span className={`flex h-9 min-w-0 overflow-hidden rounded-md border transition hover:border-[var(--color-accent)] focus-within:ring-2 ${
+      <span className={`flex h-9 min-w-0 items-center overflow-hidden rounded-md border transition hover:border-[var(--color-border-strong)] focus-within:ring-2 ${
         changed
           ? "border-[#d65a50] focus-within:border-[#d65a50] focus-within:ring-[rgba(214,90,80,0.16)]"
           : "border-[var(--color-border-strong)] focus-within:border-[var(--color-accent)] focus-within:ring-[rgba(253,134,6,0.2)]"
       } bg-[#ffffff]`}>
         {prefix && (
           <span
-            className={`shrink-0 border-r border-[var(--color-border)] px-3 text-xs text-[var(--color-muted)] ${
+            className={`flex h-full shrink-0 items-center border-r border-[var(--color-border)] px-3 text-xs text-[var(--color-muted)] ${
               readOnly ? "bg-[#ffffff]" : "bg-[#ffffff]"
             }`}
           >
@@ -2140,7 +2156,7 @@ function SettingsField({
           placeholder={placeholder}
           value={value}
           maxLength={maxLength}
-          onChange={(event) => onChange?.(event.target.value)}
+          onChange={(event) => onChange?.(formatCurrency ? formatArsInput(event.target.value).replace(/^\$/, "") : event.target.value)}
           className={`min-w-0 flex-1 bg-transparent px-3 outline-none placeholder:text-[var(--color-muted)] ${
             readOnly ? "cursor-not-allowed text-[var(--color-muted-strong)]" : ""
           }`}
@@ -2150,7 +2166,7 @@ function SettingsField({
             href={actionHref}
             target="_blank"
             rel="noreferrer"
-            className={`shrink-0 border-l border-[var(--color-border)] px-3 text-xs font-semibold text-[var(--color-ink)] hover:bg-[rgba(253,134,6,0.1)] ${
+            className={`flex h-full shrink-0 items-center border-l border-[var(--color-border)] px-3 text-xs font-semibold text-[var(--color-ink)] hover:bg-[rgba(32,24,54,0.04)] ${
               readOnly ? "bg-[#ffffff]" : ""
             }`}
           >
@@ -2474,26 +2490,34 @@ function UnsavedChangesModal({
   onConfirm: () => void;
 }) {
   return (
-    <div className="viewport-overlay modal-overlay-enter z-[80] grid place-items-end bg-[rgba(32,24,54,0.58)] p-3 backdrop-blur-sm sm:place-items-center">
+    <div
+      className="viewport-overlay modal-overlay-enter z-[80] grid place-items-end bg-[rgba(32,24,54,0.58)] p-3 backdrop-blur-sm sm:place-items-center"
+      role="presentation"
+      onPointerDown={(event) => {
+        if (!isSaving && event.target === event.currentTarget) onCancel();
+      }}
+    >
       <section
         role="dialog"
         aria-modal="true"
-        className="modal-panel-enter modal-scroll-panel w-full max-w-md rounded-xl border border-[var(--color-border)] bg-[#ffffff] p-5 shadow-[0_28px_90px_rgba(32,24,54,0.34)]"
+        className="modal-panel-enter modal-scroll-panel w-full max-w-md rounded-xl border border-[var(--color-border)] bg-[#ffffff] p-4 shadow-[0_28px_90px_rgba(32,24,54,0.34)]"
       >
-        <h2 className="text-lg font-semibold">Tenés cambios sin guardar</h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--color-muted-strong)]">
+        <h2 className="text-base font-semibold">Tenés cambios sin guardar</h2>
+        <p className="mt-1 text-xs leading-5 text-[var(--color-muted-strong)]">
           Guardá antes de continuar o descartá lo que modificaste.
         </p>
-        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button type="button" disabled={isSaving} onClick={onCancel}>
+        <div className="mt-4 flex flex-col gap-3 border-t border-[var(--color-border)] pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <Button type="button" disabled={isSaving} onClick={onCancel} style={{ fontSize: "0.9375rem", lineHeight: "1rem" }} className="h-8 px-3 py-1 sm:mr-auto">
             Cancelar
           </Button>
-          <Button type="button" disabled={isSaving} onClick={onDiscard}>
-            Descartar
-          </Button>
-          <Button type="button" variant="primary" disabled={isSaving} onClick={onConfirm}>
-            {isSaving ? "Guardando..." : "Guardar cambios"}
-          </Button>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row">
+            <Button type="button" disabled={isSaving} onClick={onDiscard} style={{ fontSize: "0.9375rem", lineHeight: "1rem" }} className="h-8 px-3 py-1">
+              Descartar
+            </Button>
+            <Button type="button" variant="primary" disabled={isSaving} onClick={onConfirm} style={{ fontSize: "0.9375rem", lineHeight: "1rem" }} className="h-8 px-3 py-1">
+              {isSaving ? "Guardando..." : "Guardar cambios"}
+            </Button>
+          </div>
         </div>
       </section>
     </div>

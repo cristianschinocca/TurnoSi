@@ -166,7 +166,8 @@ export function AccountAccessSettings({
           {!isProfileEditing && (
             <Button
               type="button"
-              className="group h-8 gap-2 px-3 text-xs"
+              style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
+              className="group h-8 gap-1.5 px-3 py-1 text-xs"
               onClick={() => setIsProfileEditing(true)}
             >
               <img
@@ -222,6 +223,8 @@ export function AccountAccessSettings({
                 <Button
                   type="button"
                   disabled={isSavingProfile}
+                  style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
+                  className="h-8 px-3 py-1 text-xs"
                   onClick={() => {
                     setProfile(savedProfile);
                     setIsProfileEditing(false);
@@ -232,7 +235,8 @@ export function AccountAccessSettings({
                 <Button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="h-8 bg-[var(--color-ink)] px-3 text-xs text-white"
+                  style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
+                  className="h-8 bg-[var(--color-ink)] px-3 py-1 text-xs text-white"
                 >
                   {isSavingProfile ? "Guardando..." : "Guardar cuenta"}
                 </Button>
@@ -256,7 +260,8 @@ export function AccountAccessSettings({
             </div>
             <Button
               type="button"
-              className="h-8 w-full px-3 text-xs sm:w-auto"
+              style={{ fontSize: "0.9375rem", lineHeight: "1rem" }}
+              className="h-8 w-full px-3 py-1 text-xs sm:w-auto"
               onClick={() => {
                 setPasswordMessage("");
                 setShowPasswordModal(true);

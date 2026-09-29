@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../../components/ui";
 import { ApiError } from "../../lib/api";
+import { formatArsCents } from "../../lib/format";
 import { billingPlans } from "../billing/billing.plans";
 import { getSuperadminPrices, retrySuperadminPrice, updateSuperadminPrice, type SuperadminPrice } from "./superadmin.api";
 
 function money(cents: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(cents / 100);
+  return formatArsCents(cents);
 }
 
 const priceErrorMessages: Record<string, string> = {

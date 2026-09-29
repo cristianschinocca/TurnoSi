@@ -84,7 +84,7 @@ export function AvailabilityWeeklySchedule({
                 <button
                   type="button"
                   onClick={(event) => toggleDayMenu(dayIndex, event.currentTarget, day.enabled, Boolean(day.break))}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-[var(--color-ink)] transition-colors hover:bg-[#f6f7f9]"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-transparent text-[var(--color-ink)] transition-colors hover:bg-[#f6f7f9]"
                 >
                   <span className="flex items-center gap-0.5" aria-hidden="true">
                     <span className="h-1 w-1 rounded-full bg-current" />
@@ -218,7 +218,7 @@ export function AvailabilityWeeklySchedule({
                   <button
                     type="button"
                     onClick={(event) => toggleDayMenu(dayIndex, event.currentTarget, day.enabled, Boolean(day.break))}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-[var(--color-ink)] transition-colors hover:bg-[#f6f7f9]"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-transparent text-[var(--color-ink)] transition-colors hover:bg-[#f6f7f9]"
                   >
                     <span className="flex items-center gap-0.5" aria-hidden="true">
                       <span className="h-1 w-1 rounded-full bg-current" />
@@ -273,32 +273,36 @@ function DayActionsMenu({
   onToggleStatus: () => void;
 }) {
   return (
-    <div className="w-44 overflow-hidden rounded-md border border-[var(--color-border)] bg-[#ffffff] p-1 text-left shadow-[0_18px_42px_rgba(32,24,54,0.16)]">
+    <div className="w-40 overflow-hidden rounded-md border border-[var(--color-border)] bg-[#ffffff] p-1 text-left shadow-[0_18px_42px_rgba(32,24,54,0.16)]">
       <button
         type="button"
         onClick={onDuplicateAll}
-        className="block w-full rounded px-3 py-2 text-left text-xs font-semibold leading-4 text-[var(--color-ink)] hover:bg-[#f6f7f9]"
+        style={{ fontSize: "0.6875rem", lineHeight: "1rem" }}
+        className="block w-full rounded px-3 py-1.5 text-left text-[0.6875rem] font-semibold leading-4 text-[var(--color-ink)] hover:bg-[#f6f7f9]"
       >
         Duplicar a todos
       </button>
       <button
         type="button"
         onClick={onDuplicate}
-        className="block w-full rounded px-3 py-2 text-left text-xs font-semibold leading-4 text-[var(--color-ink)] hover:bg-[#f6f7f9]"
+        style={{ fontSize: "0.6875rem", lineHeight: "1rem" }}
+        className="block w-full rounded px-3 py-1.5 text-left text-[0.6875rem] font-semibold leading-4 text-[var(--color-ink)] hover:bg-[#f6f7f9]"
       >
         Elegir días
       </button>
       <button
         type="button"
         onClick={onToggleBreak}
-        className="mt-1 block w-full rounded border-t border-transparent px-3 py-2 text-left text-xs font-semibold leading-4 text-[var(--color-ink)] hover:bg-[#f6f7f9]"
+        style={{ fontSize: "0.6875rem", lineHeight: "1rem" }}
+        className="mt-1 block w-full rounded border-t border-[var(--color-border)] px-3 py-1.5 pt-2 text-left text-[0.6875rem] font-semibold leading-4 text-[var(--color-ink)] hover:bg-[#f6f7f9]"
       >
         {hasBreak ? "Quitar descanso" : "Agregar descanso"}
       </button>
       <button
         type="button"
         onClick={onToggleStatus}
-        className="block w-full rounded px-3 py-2 text-left text-xs font-semibold leading-4 text-[var(--color-ink)] hover:bg-[#f6f7f9]"
+        style={{ fontSize: "0.6875rem", lineHeight: "1rem" }}
+        className={`block w-full rounded px-3 py-1.5 text-left text-[0.6875rem] font-semibold leading-4 hover:bg-[#f6f7f9] ${enabled ? "text-[#b42318]" : "text-[#347548]"}`}
       >
         {enabled ? "Desactivar día" : "Activar día"}
       </button>

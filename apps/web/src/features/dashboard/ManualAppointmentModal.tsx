@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button, ModalCloseButton } from "../../components/ui";
 import { queryKeys } from "../../lib/query-keys";
+import { formatArsCents } from "../../lib/format";
 import {
   getPublicBooking,
   getPublicSlots,
@@ -22,12 +23,7 @@ type ManualAppointmentModalProps = {
 };
 
 function formatPrice(cents?: number | null) {
-  if (cents == null) return "Precio a confirmar";
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0
-  }).format(cents / 100);
+  return cents == null ? "Precio a confirmar" : formatArsCents(cents);
 }
 
 function dayLabel(value: string) {
@@ -144,8 +140,8 @@ export function ManualAppointmentModal({
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
               Turno manual
             </p>
-            <h2 className="mt-1 text-xl font-semibold">Cargar un turno</h2>
-            <p className="mt-1 text-sm text-[var(--color-muted-strong)]">
+            <h2 className="mt-1 text-base font-semibold">Cargar un turno</h2>
+            <p className="mt-1 text-xs text-[var(--color-muted-strong)]">
               Para reservarle un horario al cliente desde el local.
             </p>
           </div>
@@ -155,9 +151,9 @@ export function ManualAppointmentModal({
         <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1.25fr)_320px]">
           <div className="grid gap-4">
             <section className="rounded-xl border border-[var(--color-border)] bg-white/45 p-4">
-              <h3 className="font-semibold">1. Servicio y profesional</h3>
+              <h3 className="text-sm font-semibold">1. Servicio y profesional</h3>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1.5 text-sm">
+                <label className="grid gap-1.5 text-xs">
                   <span className="font-semibold text-[var(--color-muted-strong)]">Servicio</span>
                   <select
                     value={serviceId}
@@ -176,7 +172,7 @@ export function ManualAppointmentModal({
                   </select>
                 </label>
                 {data && data.branches.length > 1 && (
-                  <label className="grid gap-1.5 text-sm">
+                  <label className="grid gap-1.5 text-xs">
                     <span className="font-semibold text-[var(--color-muted-strong)]">Sede</span>
                     <select
                       value={effectiveBranchId}
@@ -196,7 +192,7 @@ export function ManualAppointmentModal({
                   </label>
                 )}
                 {requiresAssignee && (
-                  <label className="grid gap-1.5 text-sm sm:col-span-2">
+                  <label className="grid gap-1.5 text-xs sm:col-span-2">
                     <span className="font-semibold text-[var(--color-muted-strong)]">
                       Profesional
                     </span>
@@ -221,9 +217,9 @@ export function ManualAppointmentModal({
             </section>
 
             <section className="rounded-xl border border-[var(--color-border)] bg-white/45 p-4">
-              <h3 className="font-semibold">2. Día y horario</h3>
+              <h3 className="text-sm font-semibold">2. Día y horario</h3>
               {slotsQuery.isPending && serviceId && (!requiresAssignee || assigneeId) ? (
-                <p className="mt-3 text-sm text-[var(--color-muted-strong)]">
+                <p className="mt-3 text-xs text-[var(--color-muted-strong)]">
                   Buscando horarios disponibles...
                 </p>
               ) : days.length > 0 ? (
@@ -237,7 +233,7 @@ export function ManualAppointmentModal({
                           setSelectedDay(day.date);
                           setStartsAt("");
                         }}
-                        className={`rounded-lg border px-3 py-2 text-left text-sm ${
+                        className={`rounded-lg border px-3 py-2 text-left text-xs ${
                           effectiveSelectedDay === day.date
                             ? "border-[var(--color-ink)] bg-[rgba(32,24,54,0.06)]"
                             : "border-[var(--color-border)] bg-white/60 hover:border-[var(--color-ink)]"
@@ -256,7 +252,7 @@ export function ManualAppointmentModal({
                         key={slot.startsAt}
                         type="button"
                         onClick={() => setStartsAt(slot.startsAt)}
-                        className={`rounded-md border px-3 py-2 font-mono text-sm font-semibold ${
+                        className={`rounded-md border px-3 py-2 font-mono text-xs font-semibold ${
                           startsAt === slot.startsAt
                             ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-button-text)]"
                             : "border-[var(--color-border)] bg-white/65 hover:border-[var(--color-ink)]"
@@ -268,16 +264,16 @@ export function ManualAppointmentModal({
                   </div>
                 </>
               ) : (
-                <p className="mt-3 rounded-lg border border-dashed border-[var(--color-border)] bg-white/45 px-3 py-4 text-sm text-[var(--color-muted-strong)]">
+                <p className="mt-3 rounded-lg border border-dashed border-[var(--color-border)] bg-white/45 px-3 py-3 text-xs text-[var(--color-muted-strong)]">
                   Elegí servicio y profesional para ver horarios disponibles.
                 </p>
               )}
             </section>
 
             <section className="rounded-xl border border-[var(--color-border)] bg-white/45 p-4">
-              <h3 className="font-semibold">3. Datos del cliente</h3>
+              <h3 className="text-sm font-semibold">3. Datos del cliente</h3>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1.5 text-sm">
+                <label className="grid gap-1.5 text-xs">
                   <span className="font-semibold text-[var(--color-muted-strong)]">Nombre</span>
                   <input
                     value={customerName}
@@ -286,7 +282,7 @@ export function ManualAppointmentModal({
                     className="h-10 rounded-md border border-[var(--color-border-strong)] bg-white/80 px-3 outline-none focus:border-[var(--color-ink)]"
                   />
                 </label>
-                <label className="grid gap-1.5 text-sm">
+                <label className="grid gap-1.5 text-xs">
                   <span className="font-semibold text-[var(--color-muted-strong)]">WhatsApp</span>
                   <input
                     value={phone}
@@ -295,7 +291,7 @@ export function ManualAppointmentModal({
                     className="h-10 rounded-md border border-[var(--color-border-strong)] bg-white/80 px-3 outline-none focus:border-[var(--color-ink)]"
                   />
                 </label>
-                <label className="grid gap-1.5 text-sm sm:col-span-2">
+                <label className="grid gap-1.5 text-xs sm:col-span-2">
                   <span className="font-semibold text-[var(--color-muted-strong)]">
                     Email (opcional)
                   </span>
@@ -315,7 +311,7 @@ export function ManualAppointmentModal({
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
               Resumen
             </p>
-            <div className="mt-4 space-y-3 text-sm">
+            <div className="mt-3 space-y-2">
               <SummaryLine label="Servicio" value={selectedService?.name ?? "Sin elegir"} />
               <SummaryLine
                 label="Precio"
@@ -333,12 +329,12 @@ export function ManualAppointmentModal({
 
             {depositEnabled && (
               <div className="mt-4 rounded-lg border border-[var(--color-border)] bg-white/55 p-3">
-                <p className="text-sm font-semibold">Seña</p>
-                <p className="mt-1 text-sm text-[var(--color-muted-strong)]">
+                <p className="text-xs font-semibold">Seña</p>
+                <p className="mt-1 text-xs text-[var(--color-muted-strong)]">
                   {formatPrice(data?.organization.deposit.amountCents)}
                 </p>
                 <div className="mt-3 grid gap-2">
-                  <label className="flex items-center gap-2 text-sm">
+                  <label className="flex items-center gap-2 text-xs">
                     <input
                       type="radio"
                       checked={depositPaid}
@@ -347,7 +343,7 @@ export function ManualAppointmentModal({
                     />
                     Abonó seña
                   </label>
-                  <label className="flex items-center gap-2 text-sm">
+                  <label className="flex items-center gap-2 text-xs">
                     <input
                       type="radio"
                       checked={!depositPaid}
@@ -360,20 +356,23 @@ export function ManualAppointmentModal({
               </div>
             )}
 
-            {error && <p className="mt-4 text-sm font-semibold text-[#b42318]">{error}</p>}
-
-            <div className="mt-5 flex flex-col-reverse gap-2">
-              <Button type="button" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button
-                type="button"
-                variant="primary"
-                disabled={!canSubmit || isSaving}
-                onClick={() => void handleSubmit()}
-              >
-                {isSaving ? "Guardando..." : "Crear turno"}
-              </Button>
+            <div className="mt-4 border-t border-[var(--color-border)] pt-3">
+              {error && <p className="mb-3 text-xs font-semibold text-[#b42318]">{error}</p>}
+              <div className="flex flex-col-reverse gap-2">
+                <Button type="button" onClick={onClose} style={{ fontSize: "0.75rem", lineHeight: "1rem" }} className="h-8 w-full px-3 py-1">
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={!canSubmit || isSaving}
+                  onClick={() => void handleSubmit()}
+                  style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+                  className="h-8 w-full px-3 py-1"
+                >
+                  {isSaving ? "Guardando..." : "Crear turno"}
+                </Button>
+              </div>
             </div>
           </aside>
         </div>
@@ -385,8 +384,8 @@ export function ManualAppointmentModal({
 function SummaryLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="border-b border-[var(--color-border)] pb-2 last:border-b-0 last:pb-0">
-      <p className="text-xs text-[var(--color-muted)]">{label}</p>
-      <p className="mt-0.5 font-semibold text-[var(--color-ink)]">{value}</p>
+      <p className="text-[0.625rem] font-semibold uppercase tracking-[0.1em] text-[var(--color-muted)]">{label}</p>
+      <p className="mt-0.5 text-xs font-semibold text-[var(--color-ink)]">{value}</p>
     </div>
   );
 }

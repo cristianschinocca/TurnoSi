@@ -90,12 +90,12 @@ export function DashboardCustomersView() {
         <CardHeader>
           <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-base font-semibold">Clientes</h2>
-              <p className="mt-0.5 text-xs text-[var(--color-muted-strong)]">
+              <h2 className="text-sm font-semibold">Clientes</h2>
+              <p className="mt-0.5 text-[0.6875rem] text-[var(--color-muted-strong)]">
                 Seguimiento de contacto, ausencias y bloqueos de reserva.
               </p>
             </div>
-            <span className="w-fit rounded-full bg-[rgba(32,24,54,0.08)] px-3 py-1 text-xs font-semibold text-[var(--color-ink)]">
+            <span className="w-fit rounded-full bg-[rgba(32,24,54,0.08)] px-3 py-1 text-[0.6875rem] font-semibold text-[var(--color-ink)]">
               {canSearchCustomers ? `${totalCustomers} registros` : "Búsqueda manual"}
             </span>
           </div>
@@ -103,7 +103,7 @@ export function DashboardCustomersView() {
         <CardBody className="p-0">
           <div className="grid gap-3 border-b border-[var(--color-border)] bg-white p-3 lg:grid-cols-[minmax(280px,560px)_minmax(240px,300px)] lg:items-end">
             <label className="w-full min-w-0">
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
+              <span className="mb-1.5 block text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
                 Buscar
               </span>
               <input
@@ -112,12 +112,13 @@ export function DashboardCustomersView() {
                   setSearch(event.target.value);
                   setPage(1);
                 }}
+                style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
                 placeholder="Escribí al menos 2 letras, email o teléfono"
-                className="h-9 w-full rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-3 text-sm outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(253,134,6,0.16)]"
+                className="h-9 w-full rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-3 text-xs placeholder:text-xs outline-none focus:border-[var(--color-ink)] focus:ring-2 focus:ring-[rgba(32,24,54,0.1)]"
               />
             </label>
             <div className="w-full">
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
+                <span className="mb-1.5 block text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
                 Estado
               </span>
               <div className="grid grid-cols-3 rounded-md border border-[var(--color-border)] bg-[#f6f7f9] p-1 text-xs">
@@ -133,6 +134,7 @@ export function DashboardCustomersView() {
                       setStatus(value);
                       setPage(1);
                     }}
+                    style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
                     className={`rounded px-2 py-1.5 font-medium transition-colors ${
                       status === value
                         ? "bg-[var(--color-ink)] text-[var(--color-button-text)]"
@@ -162,7 +164,7 @@ export function DashboardCustomersView() {
                     </span>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-[var(--color-ink)]">
+                      <p className="truncate text-xs font-semibold text-[var(--color-ink)]">
                         {customer.fullName}
                       </p>
                       <CustomerStatusBadge blocked={Boolean(customer.blockedAt)} />
@@ -245,7 +247,7 @@ export function DashboardCustomersView() {
             ))}
             {!canSearchCustomers && (
               <div className="rounded-lg border border-dashed border-[var(--color-border-strong)] bg-white/70 p-4 text-center">
-                <p className="text-sm font-semibold text-[var(--color-ink)]">
+                <p className="text-xs font-semibold text-[var(--color-ink)]">
                   Buscá un cliente para empezar
                 </p>
                 <p className="mt-1 text-xs text-[var(--color-muted)]">

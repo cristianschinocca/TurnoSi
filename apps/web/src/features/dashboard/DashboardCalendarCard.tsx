@@ -28,6 +28,7 @@ export function DashboardCalendarCard({
 }: DashboardCalendarCardProps) {
   const calendarDays = getMonthCalendarDays(selectedDate);
   const appointmentDaySet = new Set(appointmentDays);
+  const today = new Date();
 
   return (
     <article className={`min-w-0 rounded-lg border border-[var(--color-border)] bg-[#ffffff] shadow-[0_16px_44px_rgba(32,24,54,0.05)] ${compact ? "p-2.5" : "p-3"}`}>
@@ -70,6 +71,7 @@ export function DashboardCalendarCard({
         ))}
         {calendarDays.map((day) => {
           const isActive = isSameDay(day, selectedDate);
+          const isToday = isSameDay(day, today);
           const isMuted = !isSameMonth(day, selectedDate);
           const isBeforeMinDate = minDate ? day < minDate : false;
           const hasAppointments =
@@ -83,6 +85,8 @@ export function DashboardCalendarCard({
                 ? "text-[var(--color-muted)]/45"
                 : isBeforeMinDate
                   ? "text-[var(--color-muted)]/35"
+                : isToday
+                  ? "text-[var(--color-accent)]"
                 : "text-[var(--color-ink)]"
           }`;
           const content = (
@@ -91,7 +95,7 @@ export function DashboardCalendarCard({
               {hasAppointments && (
                 <span className="absolute bottom-0.5 h-1 w-1 rounded-full bg-[#569165]" />
               )}
-              {isActive && (
+              {isToday && !isActive && (
                 <span className="absolute bottom-0.5 h-1 w-1 rounded-full bg-[var(--color-accent)]" />
               )}
             </>

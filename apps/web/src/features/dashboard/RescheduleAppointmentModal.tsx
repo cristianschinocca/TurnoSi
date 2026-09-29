@@ -97,16 +97,16 @@ export function RescheduleAppointmentModal({
       >
         <header className="flex items-start justify-between gap-4 px-4 pb-4 pt-4 sm:px-5 sm:pt-5">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-muted)]">
+            <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-[var(--color-muted)]">
               Reprogramar turno
             </p>
             <h2
               id="reschedule-title"
-              className="mt-3 text-xl font-semibold leading-tight text-[var(--color-ink)]"
+              className="mt-2 text-base font-semibold leading-tight text-[var(--color-ink)]"
             >
               Elegí un nuevo horario
             </h2>
-            <p className="mt-1 truncate text-xs text-[var(--color-muted)]">
+            <p className="mt-1 truncate text-[0.6875rem] text-[var(--color-muted)]">
               {appointment.service} · {appointment.client}
             </p>
           </div>
@@ -190,7 +190,7 @@ export function RescheduleAppointmentModal({
               </section>
             </>
           ) : (
-            <p className="rounded-lg border border-dashed border-[var(--color-border)] bg-[rgba(32,24,54,0.025)] px-4 py-4 text-xs text-[var(--color-muted-strong)]">
+            <p className="rounded-lg border border-dashed border-[var(--color-border)] bg-[#ffffff] px-4 py-3 text-xs text-[var(--color-muted-strong)]">
               No encontramos horarios disponibles para este turno.
             </p>
           )}
@@ -203,7 +203,8 @@ export function RescheduleAppointmentModal({
             type="button"
             disabled={isSaving}
             onClick={onClose}
-            className="h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-4 text-[0.6875rem] font-semibold text-[var(--color-ink)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className="h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-3 font-semibold text-[var(--color-ink)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancelar
           </button>
@@ -211,9 +212,10 @@ export function RescheduleAppointmentModal({
             type="button"
             disabled={!startsAt || isSaving}
             onClick={() => void handleSubmit()}
-            className={`h-8 rounded-md px-5 text-[0.6875rem] font-semibold transition ${
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className={`h-8 rounded-md px-3 font-semibold transition ${
               startsAt && !isSaving
-                ? "bg-[var(--color-accent)] text-[var(--color-button-text)] shadow-[0_14px_30px_rgba(253,134,6,0.22)] hover:-translate-y-0.5"
+                ? "bg-[var(--color-ink)] text-[var(--color-button-text)] hover:-translate-y-0.5"
                 : "cursor-not-allowed bg-[rgba(32,24,54,0.12)] text-[var(--color-muted)]"
             }`}
           >
@@ -240,10 +242,10 @@ function SummaryCard({
         <img src={icon} alt="" aria-hidden="true" className="h-4 w-4 opacity-85" />
       </span>
       <span className="min-w-0">
-        <span className="block text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-[var(--color-muted)]">
+        <span className="block text-[0.625rem] font-semibold uppercase tracking-[0.1em] text-[var(--color-muted)]">
           {label}
         </span>
-        <strong className="mt-1 block text-xs font-semibold capitalize leading-4 text-[var(--color-ink)]">
+        <strong className="mt-1 block text-[0.6875rem] font-semibold capitalize leading-4 text-[var(--color-ink)]">
           {value}
         </strong>
       </span>

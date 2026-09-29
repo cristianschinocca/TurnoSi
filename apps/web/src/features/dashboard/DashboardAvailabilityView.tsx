@@ -124,7 +124,8 @@ export function DashboardAvailabilityView({ subscription }: DashboardAvailabilit
   const exceptionsQuery = useQuery({
     queryKey: queryKeys.availabilityExceptions(activeBranchId),
     queryFn: () => getAvailabilityExceptions(activeBranchId),
-    enabled: activeTab === "exceptions" && Boolean(activeBranchId)
+    enabled: Boolean(activeBranchId),
+    refetchOnMount: "always"
   });
   const catalogQuery = useQuery({
     queryKey: queryKeys.availabilityCatalog(activeBranchId),
@@ -167,13 +168,7 @@ export function DashboardAvailabilityView({ subscription }: DashboardAvailabilit
 
   useEffect(() => {
     if (!exceptionsQuery.data) return;
-    let cancelled = false;
-    queueMicrotask(() => {
-      if (!cancelled) setExceptions(exceptionsQuery.data);
-    });
-    return () => {
-      cancelled = true;
-    };
+    setExceptions(exceptionsQuery.data);
   }, [exceptionsQuery.data]);
 
   useEffect(() => {
@@ -893,7 +888,8 @@ function AvailabilityActionBar({
           <button
             type="button"
             onClick={onSecondaryAction}
-            className="h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-3 text-xs font-semibold text-[var(--color-ink)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className={`h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-2.5 font-semibold text-[var(--color-ink)] ${buttonMotionClass}`}
           >
             {secondaryActionLabel}
           </button>
@@ -901,7 +897,8 @@ function AvailabilityActionBar({
         <button
           type="button"
           onClick={onAction}
-          className="h-8 rounded-md bg-[var(--color-accent)] px-3 text-xs font-semibold text-white shadow-[0_10px_24px_rgba(253,134,6,0.2)] transition-shadow hover:shadow-[0_12px_28px_rgba(253,134,6,0.24)]"
+          style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+          className={`h-8 rounded-md bg-[var(--color-ink)] px-2.5 font-semibold text-[var(--color-button-text)] ${buttonMotionClass}`}
         >
           {actionLabel}
         </button>
@@ -932,7 +929,13 @@ function BranchModal({
   }
 
   return (
-    <div className="viewport-overlay modal-overlay-enter z-50 grid place-items-end bg-[rgba(32,24,54,0.58)] px-3 py-3 backdrop-blur-sm sm:place-items-center">
+    <div
+      className="viewport-overlay modal-overlay-enter z-50 grid place-items-end bg-[rgba(32,24,54,0.58)] px-3 py-3 backdrop-blur-sm sm:place-items-center"
+      role="presentation"
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="modal-panel-enter modal-scroll-panel w-full max-w-2xl rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-4 shadow-[0_28px_90px_rgba(32,24,54,0.34)] sm:p-5">
         <div className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-3">
           <div>
@@ -1061,36 +1064,47 @@ function CategoryModal({
   onSave: () => void;
 }) {
   return (
-    <div className="viewport-overlay modal-overlay-enter z-50 grid place-items-end bg-[rgba(32,24,54,0.58)] px-3 py-3 backdrop-blur-sm sm:place-items-center">
-      <div className="modal-panel-enter modal-scroll-panel w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-4 shadow-[0_28px_90px_rgba(32,24,54,0.34)]">
-        <div className="border-b border-[var(--color-border)] pb-3">
-          <h2 className="text-lg font-semibold">Nueva categoría</h2>
-          <p className="mt-1 text-sm text-[var(--color-muted-strong)]">
+    <div
+      className="viewport-overlay modal-overlay-enter z-50 grid place-items-end bg-[rgba(32,24,54,0.58)] px-3 py-3 backdrop-blur-sm sm:place-items-center"
+      role="presentation"
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div role="dialog" aria-modal="true" aria-labelledby="category-modal-title" className="modal-panel-enter modal-scroll-panel w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-4 shadow-[0_28px_90px_rgba(32,24,54,0.34)]">
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-3">
+          <div>
+          <h2 id="category-modal-title" className="text-base font-semibold">Nueva categoría</h2>
+          <p className="mt-1 text-xs text-[var(--color-muted-strong)]">
             Después vas a poder crear servicios dentro de esta categoría.
           </p>
+          </div>
+          <ModalCloseButton onClick={onClose} />
         </div>
-        <label className="mt-4 grid gap-1.5 text-sm">
+        <label className="mt-4 grid gap-1.5 text-xs">
           <span className="font-semibold text-[var(--color-muted-strong)]">Nombre</span>
           <input
             autoFocus
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder="Ej. Cabello, Manos, Canchas"
-            className="h-10 rounded-md border border-[var(--color-border-strong)] bg-white/70 px-3 outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(253,134,6,0.2)]"
+            className="h-10 rounded-md border border-[var(--color-border-strong)] bg-white/70 px-3 outline-none focus:border-[var(--color-ink)] focus:ring-2 focus:ring-[rgba(32,24,54,0.12)]"
           />
         </label>
         <div className="mt-5 flex flex-col-reverse gap-2 border-t border-[var(--color-border)] pt-4 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onClose}
-            className={`rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-semibold text-[var(--color-muted-strong)] ${buttonMotionClass}`}
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className={`h-8 rounded-md border border-[var(--color-border)] px-3 py-1 font-semibold text-[var(--color-muted-strong)] ${buttonMotionClass}`}
           >
             Cancelar
           </button>
           <button
             type="button"
             onClick={onSave}
-            className={`rounded-md bg-[var(--color-ink)] px-4 py-2 text-sm font-semibold text-[var(--color-button-text)] ${buttonMotionClass}`}
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className={`h-8 rounded-md bg-[var(--color-ink)] px-3 py-1 font-semibold text-[var(--color-button-text)] ${buttonMotionClass}`}
           >
             Crear categoría
           </button>

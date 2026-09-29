@@ -274,15 +274,15 @@ export function DashboardAgendaView({
             scheduleView={scheduleView}
           />
         </div>
-        {sortedMatches.length === 0 && (
-          <div className="border-b border-[var(--color-border)] bg-white/42 px-3 py-3">
+        <div className="min-h-[70px] border-b border-[var(--color-border)] bg-white/42 px-3 py-3">
+          {sortedMatches.length === 0 && (
             <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-[#ffffff] px-4 py-3 text-xs text-[var(--color-muted-strong)]">
-              {emptyMessage}
+                {emptyMessage}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        <div className="stable-scrollbar overflow-x-auto bg-[rgba(32,24,54,0.025)]">
+        <div className="stable-scrollbar overflow-x-auto bg-[#ffffff]">
           <div className={scheduleView === "day" ? "min-w-0" : "min-w-[820px]"}>
             <div
               className="grid border-b border-[var(--color-border)]"
@@ -290,12 +290,16 @@ export function DashboardAgendaView({
             >
               <div />
               {visibleDays.map((day) => (
-                <div
+                <button
                   key={day.date.toISOString()}
-                  className="flex items-center justify-center gap-1.5 px-2 py-2 text-[0.6875rem] font-medium text-[var(--color-muted-strong)]"
+                  type="button"
+                  onClick={() => onSelectDate(day.date)}
+                  style={{ fontSize: "0.6875rem", lineHeight: "1rem" }}
+                  className="flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[0.6875rem] font-medium text-[var(--color-muted-strong)] transition hover:bg-white/60"
                 >
                   <span>{day.label}</span>
                   <span
+                    style={{ fontSize: "0.6875rem", lineHeight: "1rem" }}
                     className={`flex h-7 w-7 items-center justify-center rounded-full ${
                       day.active
                         ? "bg-[var(--color-ink)] text-white"
@@ -304,14 +308,14 @@ export function DashboardAgendaView({
                   >
                     {day.dateLabel}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
 
             <div className="grid" style={{ gridTemplateColumns }}>
               {agendaHours.map(({ hour, label }) => (
                 <div key={hour} className="contents">
-                  <div className="border-r border-[rgba(32,24,54,0.12)] px-2 py-3 text-[0.625rem] text-[var(--color-muted)] sm:px-3">
+                  <div className="border-r border-[rgba(32,24,54,0.12)] bg-[rgba(32,24,54,0.035)] px-2 py-3 text-[0.625rem] text-[var(--color-muted)] sm:px-3">
                     {label}
                   </div>
                   {visibleDays.map((day) => {
@@ -322,9 +326,7 @@ export function DashboardAgendaView({
                     return (
                       <div
                         key={`${label}-${day.label}`}
-                        className={`min-h-[42px] border-r border-b border-[rgba(32,24,54,0.12)] p-1 ${
-                          day.active ? "bg-[rgba(32,24,54,0.045)]" : ""
-                                  }`}
+                        className="min-h-[42px] border-r border-b border-[rgba(32,24,54,0.12)] bg-[#ffffff] p-1"
                                 >
                         {events.length > 0 && (
                           <div
@@ -503,13 +505,15 @@ function AgendaMonthView({
     <section className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_320px]">
       <article className="min-w-0 rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-3 shadow-[0_16px_44px_rgba(32,24,54,0.05)]">
         <div className="flex flex-col gap-3 border-b border-[var(--color-border)] pb-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="text-[0.8125rem] font-semibold capitalize">
-              {format(selectedDate, "MMMM yyyy", { locale: es })}
-            </h2>
-            <p className="mt-1 text-xs text-[var(--color-muted)]">
-              Vista mensual de turnos y disponibilidad.
-            </p>
+          <div className="flex w-full min-w-0 items-center rounded-lg border border-[var(--color-border)] bg-[rgba(32,24,54,0.035)] px-3 py-2 text-left text-xs lg:w-72">
+            <span className="min-w-0">
+              <span className="block text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
+                Mes
+              </span>
+              <span className="mt-0.5 block truncate whitespace-nowrap text-xs font-semibold capitalize text-[var(--color-ink)]">
+                {format(selectedDate, "MMMM yyyy", { locale: es })}
+              </span>
+            </span>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <AgendaViewControls
@@ -669,7 +673,7 @@ function AgendaMatchesCard({
         : "Turnos del mes";
 
   return (
-    <article className="min-w-0 rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-2.5 shadow-[0_16px_44px_rgba(32,24,54,0.05)]">
+    <article className={`min-w-0 rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-2.5 shadow-[0_16px_44px_rgba(32,24,54,0.05)] ${scheduleView === "month" ? "min-h-[220px]" : ""}`}>
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-[0.8125rem] font-semibold">{title}</h2>
@@ -753,6 +757,14 @@ function AgendaViewControls({
       <div className="flex w-full rounded-lg border border-[var(--color-border)] bg-white/45 p-1 text-xs sm:w-auto">
         <button
           type="button"
+          onClick={onPreviousPeriod}
+          aria-label="Período anterior"
+          className="grid w-8 shrink-0 place-items-center rounded text-[var(--color-ink)] transition-colors duration-200 hover:bg-white/70"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
           onClick={onToday}
           className="mr-1 flex-1 rounded bg-[var(--color-accent)] px-3 py-1.5 font-semibold text-[var(--color-button-text)] transition-colors duration-200 hover:bg-[#e97805] sm:flex-none"
         >
@@ -773,21 +785,11 @@ function AgendaViewControls({
             {option.label}
           </button>
         ))}
-      </div>
-      <div className="flex w-fit overflow-hidden rounded-lg border border-[var(--color-border)] bg-white/45 text-xs">
-        <button
-          type="button"
-          onClick={onPreviousPeriod}
-          aria-label="Período anterior"
-          className="px-3 py-2 text-[var(--color-ink)] hover:bg-white/70"
-        >
-          ‹
-        </button>
         <button
           type="button"
           onClick={onNextPeriod}
           aria-label="Período siguiente"
-          className="border-l border-[var(--color-border)] px-3 py-2 text-[var(--color-ink)] hover:bg-white/70"
+          className="grid w-8 shrink-0 place-items-center rounded text-[var(--color-ink)] transition-colors duration-200 hover:bg-white/70"
         >
           ›
         </button>

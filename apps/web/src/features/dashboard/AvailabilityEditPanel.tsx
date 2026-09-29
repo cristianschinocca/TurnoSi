@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import { ModalCloseButton, Toast } from "../../components/ui";
+import { Button, ModalCloseButton, Toast } from "../../components/ui";
+import { formatArsInput } from "../../lib/format";
 import type {
   AvailabilityException,
   AvailabilityPanel,
@@ -59,7 +60,9 @@ export function AvailabilityEditPanel({
   const [isSaving, setIsSaving] = useState(false);
   const title =
     panel.type === "exception"
-      ? "Editar excepción"
+      ? exception?.id
+        ? "Editar excepción"
+        : "Agregar excepción"
       : panel.index < 0
         ? "Nuevo servicio"
         : "Editar reglas";
@@ -127,13 +130,24 @@ export function AvailabilityEditPanel({
   }
 
   return (
-    <div className="viewport-overlay modal-overlay-enter z-50 grid place-items-end bg-[rgba(32,24,54,0.58)] px-3 py-3 backdrop-blur-sm sm:place-items-center">
-      <div className="modal-panel-enter modal-scroll-panel w-full max-w-xl rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-4 shadow-[0_28px_90px_rgba(32,24,54,0.34)]">
+    <div
+      className="viewport-overlay modal-overlay-enter z-50 grid place-items-end bg-[rgba(32,24,54,0.58)] px-3 py-3 backdrop-blur-sm sm:place-items-center"
+      role="presentation"
+      onPointerDown={(event) => {
+        if (!isSaving && event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="availability-exception-title"
+        className="modal-panel-enter modal-scroll-panel w-full max-w-xl rounded-lg border border-[var(--color-border)] bg-[#ffffff] p-4 shadow-[0_28px_90px_rgba(32,24,54,0.34)]"
+      >
         <div className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] pb-3">
           <div>
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="mt-1 text-sm text-[var(--color-muted-strong)]">
-              Los cambios se aplican en esta maqueta local.
+            <h2 id="availability-exception-title" className="text-base font-semibold">{title}</h2>
+            <p className="mt-1 text-xs text-[var(--color-muted-strong)]">
+              Definí cómo se comporta el local en esta fecha.
             </p>
           </div>
           <ModalCloseButton disabled={isSaving} onClick={onClose} />
@@ -150,14 +164,14 @@ export function AvailabilityEditPanel({
               />
               <ExceptionModeButton
                 active={exceptionDraft?.status === "Horario especial"}
-                description="Abre fuera del semanal."
-                label="Abrir especial"
+                description="Abre fuera del horario semanal."
+                label="Horario especial"
                 onClick={() => setExceptionMode("Horario especial")}
               />
               <ExceptionModeButton
                 active={exceptionDraft?.status === "Bloque parcial"}
-                description="Bloquea una franja."
-                label="Bloquear horario"
+                description="Bloquea una franja puntual."
+                label="Bloqueo parcial"
                 onClick={() => setExceptionMode("Bloque parcial")}
               />
             </div>
@@ -215,7 +229,7 @@ export function AvailabilityEditPanel({
                 setResourceDraft((current) => (current ? { ...current, name: value } : current))
               }
             />
-            <label className="grid gap-1.5 text-sm">
+            <label className="grid gap-1.5 text-xs">
               <span className="font-semibold text-[var(--color-muted-strong)]">
                 Categoría
               </span>
@@ -236,7 +250,7 @@ export function AvailabilityEditPanel({
                 ))}
               </select>
             </label>
-            <TextField
+            <PriceField
               label="Precio"
               placeholder="Ej. 20000"
               value={resourceDraft?.price ?? ""}
@@ -279,7 +293,7 @@ export function AvailabilityEditPanel({
                 />
               </div>
             )}
-            <label className="flex items-center gap-2 text-sm font-semibold text-[var(--color-muted-strong)]">
+            <label className="flex items-center gap-2 text-xs font-semibold text-[var(--color-muted-strong)]">
               <input
                 checked={resourceDraft?.online ?? false}
                 onChange={(event) =>
@@ -300,27 +314,17 @@ export function AvailabilityEditPanel({
               type="button"
               disabled={isSaving}
               onClick={() => void deleteException()}
-              className={`rounded-md border border-[#e7b9b2] px-4 py-2 text-sm font-semibold text-[#9f1f16] hover:bg-[#fde8e5] disabled:cursor-not-allowed disabled:opacity-60 sm:mr-auto ${buttonMotionClass}`}
+              className={`h-8 rounded-md border border-[#e7b9b2] px-3 py-1 text-xs font-semibold text-[#9f1f16] hover:bg-[#fde8e5] disabled:cursor-not-allowed disabled:opacity-60 sm:mr-auto ${buttonMotionClass}`}
             >
               Eliminar
             </button>
           )}
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={onClose}
-            className={`rounded-md border border-[var(--color-border)] px-4 py-2 text-sm font-semibold text-[var(--color-muted-strong)] disabled:cursor-not-allowed disabled:opacity-60 ${buttonMotionClass}`}
-          >
+          <Button type="button" variant="secondary" disabled={isSaving} onClick={onClose} style={{ fontSize: "0.9375rem", lineHeight: "1rem" }} className="h-8 px-3 py-1">
             Cancelar
-          </button>
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={() => void acceptChanges()}
-            className={`rounded-md bg-[var(--color-ink)] px-4 py-2 text-sm font-semibold text-[var(--color-button-text)] disabled:cursor-not-allowed disabled:opacity-60 ${buttonMotionClass}`}
-          >
+          </Button>
+          <Button type="button" variant="primary" disabled={isSaving} onClick={() => void acceptChanges()} style={{ fontSize: "0.9375rem", lineHeight: "1rem" }} className="h-8 px-3 py-1">
             {isSaving ? "Guardando..." : "Aceptar cambios"}
-          </button>
+          </Button>
         </div>
       </div>
       {toast && <Toast message={toast} onDismiss={() => setToast("")} />}
@@ -343,14 +347,14 @@ function ExceptionModeButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg border px-3 py-3 text-left transition ${
-        active
-          ? "border-[var(--color-accent)] bg-[rgba(253,134,6,0.1)] text-[var(--color-ink)]"
-          : "border-[var(--color-border)] bg-white/62 text-[var(--color-muted-strong)] hover:border-[var(--color-accent)]"
+      className={`min-h-[76px] rounded-lg border px-3 py-3 text-left transition ${
+          active
+          ? "border-[var(--color-ink)] bg-[rgba(32,24,54,0.04)] text-[var(--color-ink)] shadow-[0_0_0_1px_rgba(32,24,54,0.08)]"
+          : "border-[var(--color-border)] bg-white text-[var(--color-muted-strong)] hover:border-[var(--color-border-strong)]"
       }`}
     >
-      <span className="block text-sm font-semibold">{label}</span>
-      <span className="mt-1 block text-xs">{description}</span>
+      <span className="block text-xs font-semibold">{label}</span>
+      <span className="mt-1 block text-[0.6875rem]">{description}</span>
     </button>
   );
 }
@@ -369,7 +373,7 @@ function MinutesField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm">
+    <label className="grid gap-1.5 text-xs">
       <span className="font-semibold text-[var(--color-muted-strong)]">{label}</span>
       <span className="flex h-10 overflow-hidden rounded-md border border-[var(--color-border-strong)] bg-white/70 focus-within:border-[var(--color-accent)] focus-within:ring-2 focus-within:ring-[rgba(253,134,6,0.2)]">
         <input
@@ -406,13 +410,39 @@ function TextField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm">
+    <label className="grid gap-1.5 text-xs">
       <span className="font-semibold text-[var(--color-muted-strong)]">{label}</span>
       <input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        className="h-10 rounded-md border border-[var(--color-border-strong)] bg-white/70 px-3 outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(253,134,6,0.2)]"
+      />
+    </label>
+  );
+}
+
+function PriceField({
+  label,
+  placeholder,
+  value,
+  onChange
+}: {
+  label: string;
+  placeholder?: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="grid gap-1.5 text-xs">
+      <span className="font-semibold text-[var(--color-muted-strong)]">{label}</span>
+      <input
+        inputMode="decimal"
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(formatArsInput(event.target.value))}
         className="h-10 rounded-md border border-[var(--color-border-strong)] bg-white/70 px-3 outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(253,134,6,0.2)]"
       />
     </label>

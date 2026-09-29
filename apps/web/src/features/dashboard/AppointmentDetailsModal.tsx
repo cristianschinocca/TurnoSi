@@ -70,11 +70,11 @@ export function AppointmentDetailsModal({
               </p>
               <h2
                 id="appointment-details-title"
-                className="mt-4 truncate text-2xl font-semibold leading-tight text-[var(--color-ink)]"
+                className="mt-3 truncate text-lg font-semibold leading-tight text-[var(--color-ink)]"
               >
                 {appointment.service}
               </h2>
-              <p className="mt-1 truncate text-base text-[var(--color-muted)]">
+              <p className="mt-1 truncate text-sm text-[var(--color-muted)]">
                 {appointment.client}
               </p>
             </div>
@@ -122,7 +122,8 @@ export function AppointmentDetailsModal({
           <button
             type="button"
             onClick={onClose}
-            className={`h-8 w-full rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-4 text-xs font-semibold text-[var(--color-muted)] transition hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] sm:w-auto ${buttonMotionClass}`}
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className={`h-8 w-full rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-3 font-semibold text-[var(--color-muted)] transition hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] sm:w-auto ${buttonMotionClass}`}
           >
             Cancelar
           </button>
@@ -131,16 +132,18 @@ export function AppointmentDetailsModal({
               type="button"
               onClick={onRequestReschedule}
               disabled={!onRequestReschedule}
-              className={`h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-4 text-xs font-semibold text-[var(--color-muted)] disabled:cursor-not-allowed disabled:opacity-50 ${buttonMotionClass}`}
+              style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+              className={`h-8 rounded-md border border-[var(--color-border-strong)] bg-[#ffffff] px-3 font-semibold text-[var(--color-muted)] disabled:cursor-not-allowed disabled:opacity-50 ${buttonMotionClass}`}
             >
               Reprogramar turno
             </button>
             <button
               type="button"
               onClick={onRequestStatusChange}
-              className={`h-8 rounded-md px-4 text-xs font-semibold shadow-[0_14px_30px_rgba(253,134,6,0.22)] ${
+              style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+              className={`h-8 rounded-md px-3 font-semibold ${
                 isPending
-                  ? "bg-[var(--color-accent)] text-[var(--color-button-text)]"
+                  ? "bg-[var(--color-ink)] text-[var(--color-button-text)]"
                   : "border border-[var(--color-border-strong)] bg-[#ffffff] text-[var(--color-ink)] shadow-none"
               } ${buttonMotionClass}`}
             >

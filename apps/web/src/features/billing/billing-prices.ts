@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "../../lib/api";
+import { formatArsCents } from "../../lib/format";
 import type { BillingPlan } from "./billing.api";
 
 export type BillingPrice = { plan: BillingPlan; amountCents: number; revision: number };
@@ -15,7 +16,5 @@ export function useBillingPrices() {
 
 export function formatPlanPrice(prices: BillingPrice[] | undefined, plan: BillingPlan) {
   const price = prices?.find((item) => item.plan === plan);
-  return price ? new Intl.NumberFormat("es-AR", {
-    style: "currency", currency: "ARS", maximumFractionDigits: 2
-  }).format(price.amountCents / 100) : "Precio no disponible";
+  return price ? formatArsCents(price.amountCents) : "Precio no disponible";
 }

@@ -25,6 +25,7 @@ import {
 import { getBranches, type Branch } from "./branches.api";
 import { useSessionQuery } from "../auth/auth.queries";
 import pencilIcon from "../../components/assets/icons/actions/pencil.svg";
+import statusCheckIcon from "../../components/assets/icons/status/status-check.svg";
 
 type TeamFormDraft = Pick<
   TeamMember,
@@ -119,6 +120,16 @@ export function DashboardTeamView() {
   const [passwordResetMember, setPasswordResetMember] = useState<TeamMember | null>(null);
   const [passwordDraft, setPasswordDraft] = useState("");
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+
+  useEffect(() => {
+    if (!openMemberMenuId) return;
+    function closeMenu(event: PointerEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest("[data-team-menu]")) setOpenMemberMenuId("");
+    }
+    document.addEventListener("pointerdown", closeMenu);
+    return () => document.removeEventListener("pointerdown", closeMenu);
+  }, [openMemberMenuId]);
 
   useEffect(() => {
     if (!teamQuery.data) return;
@@ -235,15 +246,17 @@ export function DashboardTeamView() {
           <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-semibold">Tu equipo</h2>
+                <h2 className="text-sm font-semibold">Tu equipo</h2>
               </div>
-              <p className="mt-0.5 text-xs text-[var(--color-muted-strong)]">
+              <p className="mt-0.5 text-[0.6875rem] text-[var(--color-muted-strong)]">
                 Gestioná datos, permisos y capacidad de cada persona.
               </p>
             </div>
             <Button
               type="button"
               variant="primary"
+              style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+              className="h-8 px-3 py-1"
               onClick={() => {
                 const mainBranchId =
                   branchesQuery.data?.find((branch) => branch.isMain)?.id ??
@@ -280,7 +293,7 @@ export function DashboardTeamView() {
                       </span>
                       <div className="min-w-0">
                         <div className="flex min-w-0 items-center gap-2">
-                          <p className="truncate text-sm font-semibold text-[var(--color-ink)]">{member.name}</p>
+                          <p className="truncate text-xs font-semibold text-[var(--color-ink)]">{member.name}</p>
                           <RoleBadge role={member.role} />
                         </div>
                         <p className="mt-0.5 truncate text-xs text-[var(--color-muted-strong)]">
@@ -309,10 +322,11 @@ export function DashboardTeamView() {
                     <div className="absolute right-3 top-3">
                       <button
                         type="button"
+                        data-team-menu
                         title="Opciones"
                         aria-label={`Opciones de ${member.name}`}
                         aria-expanded={openMemberMenuId === member.id}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-[var(--color-ink)] transition-colors hover:bg-[#f6f7f9]"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-transparent text-[var(--color-ink)] transition-colors hover:bg-[#f6f7f9]"
                         onClick={(event) => {
                           event.stopPropagation();
                           setOpenMemberMenuId((current) => (current === member.id ? "" : member.id));
@@ -326,12 +340,13 @@ export function DashboardTeamView() {
                       </button>
                       {openMemberMenuId === member.id && (
                         <div
-                          className="absolute right-0 z-30 mt-1.5 w-44 overflow-hidden rounded-md border border-[var(--color-border)] bg-white py-1 text-sm shadow-[0_14px_34px_rgba(32,24,54,0.14)]"
+                          data-team-menu
+                          className="absolute right-0 z-30 mt-1.5 w-40 overflow-hidden rounded-md border border-[var(--color-border)] bg-white py-1 text-xs shadow-[0_14px_34px_rgba(32,24,54,0.14)]"
                           onClick={(event) => event.stopPropagation()}
                         >
                           <button
                             type="button"
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-[var(--color-ink)] hover:bg-[#f6f7f9]"
+                            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[0.6875rem] font-semibold text-[var(--color-ink)] hover:bg-[#f6f7f9]"
                             onClick={() => {
                               setOpenMemberMenuId("");
                               setEditingId(member.id);
@@ -343,7 +358,7 @@ export function DashboardTeamView() {
                           {member.role !== "owner" && (
                             <button
                               type="button"
-                              className="block w-full px-3 py-2 text-left text-xs font-semibold text-[var(--color-ink)] hover:bg-[#f6f7f9]"
+                              className="block w-full px-3 py-1.5 text-left text-[0.6875rem] font-semibold text-[var(--color-ink)] hover:bg-[#f6f7f9]"
                               onClick={() => {
                                 setOpenMemberMenuId("");
                                 setPasswordResetMember(member);
@@ -356,7 +371,7 @@ export function DashboardTeamView() {
                           {canDeleteMember && (
                             <button
                               type="button"
-                              className="block w-full px-3 py-2 text-left text-xs font-semibold text-[#b42318] hover:bg-[#fff4f2]"
+                              className="block w-full px-3 py-1.5 text-left text-[0.6875rem] font-semibold text-[#b42318] hover:bg-[#fff4f2]"
                               onClick={() => {
                                 setOpenMemberMenuId("");
                                 void handleDelete(member);
@@ -567,10 +582,10 @@ function TeamModal({
       >
         <div className="flex items-start justify-between gap-4 border-b border-[var(--color-border)] p-4">
           <div>
-            <h2 id="team-modal-title" className="text-lg font-semibold">
+            <h2 id="team-modal-title" className="text-base font-semibold">
               {title}
             </h2>
-            <p className="mt-1 text-sm text-[var(--color-muted-strong)]">
+            <p className="mt-1 text-xs text-[var(--color-muted-strong)]">
               {description}
             </p>
           </div>
@@ -645,7 +660,7 @@ function TeamModal({
                           : "border-[var(--color-border-strong)] text-transparent"
                       }`}
                     >
-                      ✓
+                      {checked && <img src={statusCheckIcon} alt="" aria-hidden="true" className="h-3.5 w-3.5 invert" />}
                     </span>
                   </button>
                 );
@@ -688,7 +703,7 @@ function TeamModal({
         </div>
 
         <div className="flex flex-col-reverse gap-2 border-t border-[var(--color-border)] p-4 sm:flex-row sm:justify-end">
-          <Button type="button" disabled={isSaving} onClick={onClose}>
+          <Button type="button" disabled={isSaving} onClick={onClose} style={{ fontSize: "0.75rem", lineHeight: "1rem" }} className="h-8 px-3 py-1">
             Cancelar
           </Button>
           <Button
@@ -696,6 +711,8 @@ function TeamModal({
             variant="primary"
             disabled={isSaving || isInvalid}
             onClick={onSubmit}
+            style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
+            className="h-8 px-3 py-1"
           >
             {isSaving ? "Guardando..." : submitLabel}
           </Button>
@@ -741,7 +758,7 @@ function TeamInfoLine({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--color-muted)]">
         {label}
       </p>
-      <p className="mt-0.5 truncate text-sm font-semibold text-[var(--color-ink)]" title={value}>
+      <p className="mt-0.5 truncate text-xs font-semibold text-[var(--color-ink)]" title={value}>
         {value}
       </p>
     </div>

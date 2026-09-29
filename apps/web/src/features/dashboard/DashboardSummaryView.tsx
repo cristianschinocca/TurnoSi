@@ -13,6 +13,7 @@ import noShowIcon from "../../components/assets/icons/analytics/user-x.svg";
 import calendarRangeIcon from "../../components/assets/icons/navigation/calendar-range.svg";
 import analyticsIcon from "../../components/assets/icons/navigation/chart-no-axes-combined.svg";
 import { ModalCloseButton } from "../../components/ui/ModalCloseButton";
+import { formatArsCents } from "../../lib/format";
 import { DashboardPerformanceChart } from "./DashboardPerformanceChart";
 import {
   createDashboardExpense,
@@ -41,14 +42,8 @@ const paymentMethods = [
   { label: "Otro", value: "other" }
 ];
 
-const money = new Intl.NumberFormat("es-AR", {
-  currency: "ARS",
-  maximumFractionDigits: 0,
-  style: "currency"
-});
-
 function formatMoney(cents: number) {
-  return money.format(cents / 100);
+  return formatArsCents(cents);
 }
 
 function formatExpenseMethod(value: string | null) {

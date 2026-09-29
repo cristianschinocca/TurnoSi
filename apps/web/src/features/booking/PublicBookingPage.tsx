@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatArsCents } from "../../lib/format";
 
 import { PageLayout } from "../../components/layout/PageLayout";
 import { ApiError } from "../../lib/api";
@@ -42,8 +43,7 @@ const longDateFormatter = new Intl.DateTimeFormat("es-AR", {
 });
 
 function formatPrice(priceCents: number | null) {
-  if (priceCents == null) return "Consultar";
-  return `$${(priceCents / 100).toLocaleString("es-AR")}`;
+  return formatArsCents(priceCents);
 }
 
 function formatPublicPhone(value: string | null | undefined) {
